@@ -11,6 +11,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView textView;
     private Button testButton;
     private Database database;
+    private String string;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
