@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button testButton;
     private Database database;
     private String string;
+    private boolean aBoolean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
