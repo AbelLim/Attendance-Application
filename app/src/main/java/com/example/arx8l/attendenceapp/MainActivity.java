@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             @Override
-            public void OnSuccess(String userID, String name) {
-                textView.setText("Log in successful: " + name + " : " + userID);
+            public void OnSuccess(User user) {
+                textView.setText("Log in successful: " + user.getName() + " : " + user.getUserID());
             }
 
             @Override

@@ -34,10 +34,9 @@ public class LoginManager
                         userList.add(user);
                     }
                     String passwordDatabase = userList.get(0).getPassword();
-                    String userID = userList.get(0).getUserID();
-                    String name = userList.get(0).getName();
+                    User mUser = userList.get(0);
                     if(passwordDatabase.equals(passwordUser))
-                        listener.OnSuccess(userID, name);
+                        listener.OnSuccess(mUser);
                     else
                         listener.OnFailure();
             }
@@ -52,7 +51,7 @@ public class LoginManager
     public interface OnLoginListener
     {
         void OnStart();
-        void OnSuccess(String userID, String name);
+        void OnSuccess(User user);
         void OnFailure();
     }
 }
