@@ -1,29 +1,55 @@
 package com.example.arx8l.attendenceapp;
 
+import android.support.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class Database
 {
-    private List<User> userList = new ArrayList<>();
-    DatabaseReference databaseUsers;
+    private DatabaseReference databaseUsers;
 
     public Database()
     {
         databaseUsers = FirebaseDatabase.getInstance().getReference("users");
     }
 
-    public void createUser(String userID, String username, String email, String password)
+    private void createUser(String userID, String name, String email, String password)
     {
-        User user = new User(userID, username, email, password);
+        User user = new User(userID, name, email, password);
         String key = databaseUsers.push().getKey();
-        databaseUsers.child(key).setValue(user);
+        if(key!=null)
+            databaseUsers.child(key).setValue(user);
     }
 
-    public boolean isLogin()
+    //Data sent/completion listener methods
+    public interface OnGetDataListener
     {
-        return false;
+        void OnStart();
+        void OnSuccess(DataSnapshot snapshot);
+        void OnFailure();
+    }
+
+    public void readData(Query query, final OnGetDataListener listener)
+    {
+        listener.OnStart();
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists())
+                    listener.OnSuccess(dataSnapshot);
+                else
+                    listener.OnFailure();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                listener.OnFailure();
+            }
+        });
     }
 }

@@ -6,32 +6,46 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textView;
     private Button testButton;
-    private Database database;
+    private LoginManager loginManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        database = new Database();
         textView = (TextView) findViewById(R.id.textView);
         testButton = (Button) findViewById(R.id.testButton);
         testButton.setOnClickListener(this);
+        loginManager = new LoginManager();
     }
 
     @Override
-    public void onClick(View v) {
-        //Create new user
-        /*database.createUser("12345678", "Jim", "Jim@my.jcu.edu.au", "password");*/
+    public void onClick(View view)
+    {
+        loginManager.login("tom@my.jcu.edu.au", "Password", new LoginManager.OnLoginListener() {
+            @Override
+            public void OnStart() {
+                textView.setText("Logging in...");
+            }
 
-        //Login authentication
-        /*if(database.isLoginCorrect("Jim@my.jcu.edu.au", "password"))
-            textView.setText("Login Correct");
-        else
-            textView.setText("Login Failed");*/
+            @Override
+            public void OnSuccess() {
+                textView.setText("Log in successful");
+            }
+
+            @Override
+            public void OnFailure() {
+                textView.setText("Log in failed");
+            }
+        });
     }
 }

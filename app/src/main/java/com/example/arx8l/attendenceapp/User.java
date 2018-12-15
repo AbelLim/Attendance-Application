@@ -11,6 +11,8 @@ public class User {
     private Boolean isTappedIn;
     private String tapInTime;
 
+    public User(){}
+
     public User(String userID, String name, String email, String password)
     {
         this.userID = userID;
@@ -33,7 +35,7 @@ public class User {
     }
 
     public void setuserName(String name) {
-        this.userName = userName;
+        this.userName = name;
     }
 
     public String getEmail() {
