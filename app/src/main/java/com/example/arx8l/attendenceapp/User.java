@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class User {
     private String userID;
-    private String userName;
+    private String name;
     private String email;
     private String password;
     private Boolean isTappedIn;
@@ -16,7 +16,7 @@ public class User {
     public User(String userID, String name, String email, String password)
     {
         this.userID = userID;
-        this.userName = name;
+        this.name = name;
         this.email = email;
         this.password = password;
         this.isTappedIn = false;
@@ -30,12 +30,12 @@ public class User {
         this.userID = userID;
     }
 
-    public String getuserName() {
-        return userName;
+    public String getName() {
+        return name;
     }
 
-    public void setuserName(String name) {
-        this.userName = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {

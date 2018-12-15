@@ -35,8 +35,9 @@ public class LoginManager
                     }
                     String passwordDatabase = userList.get(0).getPassword();
                     String userID = userList.get(0).getUserID();
+                    String name = userList.get(0).getName();
                     if(passwordDatabase.equals(passwordUser))
-                        listener.OnSuccess(userID);
+                        listener.OnSuccess(userID, name);
                     else
                         listener.OnFailure();
             }
@@ -51,7 +52,7 @@ public class LoginManager
     public interface OnLoginListener
     {
         void OnStart();
-        void OnSuccess(String userID);
+        void OnSuccess(String userID, String name);
         void OnFailure();
     }
 }

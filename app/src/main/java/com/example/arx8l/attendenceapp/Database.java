@@ -15,7 +15,7 @@ public class Database
 
     public Database(){}
 
-    private void createUser(String userID, String name, String email, String password)
+    public void createUser(String userID, String name, String email, String password)
     {
         User user = new User(userID, name, email, password);
         String key = userDatabase.push().getKey();

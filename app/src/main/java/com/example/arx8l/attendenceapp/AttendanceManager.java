@@ -90,7 +90,7 @@ public class AttendanceManager {
         });
     }
 
-    public void getAttendance(String userID, final OnReceiveAttendanceListener listener)
+    public void getUser(String userID, final onGetUserListener listener)
     {
         final DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");
         Query query = userDatabase.orderByChild("userID").equalTo(userID);
@@ -108,10 +108,9 @@ public class AttendanceManager {
                     User user = userSnapshot.getValue(User.class);
                     userList.add(user);
                 }
-                String tapInTime = userList.get(0).getTapInTime();
-                Boolean isTappedIn = userList.get(0).getTappedIn();
-                if(tapInTime!=null)
-                    listener.OnSuccess(tapInTime, isTappedIn);
+                User mUser = userList.get(0);
+                if(mUser!=null)
+                    listener.OnSuccess(mUser);
                 else
                     listener.OnFailure();
             }
@@ -123,10 +122,10 @@ public class AttendanceManager {
         });
     }
 
-    public interface OnReceiveAttendanceListener
+    public interface onGetUserListener
     {
         void OnStart();
-        void OnSuccess(String timestamp, boolean isTappedIn);
+        void OnSuccess(User user);
         void OnFailure();
     }
 

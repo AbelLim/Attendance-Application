@@ -10,6 +10,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView textView;
     private Button testButton;
+    private Database database = new Database();
     private LoginManager loginManager = new LoginManager();
     private AttendanceManager attendanceManager = new AttendanceManager();
 
@@ -31,6 +32,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //THE FOLLOWING ARE TEST FUNCTIONS RELATED TO THE DATABASE
 
+    private void createUser()
+    {
+        database.createUser("51235434", "Tom", "tom@my.jcu.edu.au", "Password");
+    }
+
     private void login()
     {
         loginManager.login("tom@my.jcu.edu.au", "Password", new LoginManager.OnLoginListener() {
@@ -40,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             @Override
-            public void OnSuccess(String userID) {
-                textView.setText("Log in successful");
+            public void OnSuccess(String userID, String name) {
+                textView.setText("Log in successful: " + name + " : " + userID);
             }
 
             @Override
@@ -91,17 +97,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void getAttendance()
+    private void getUser()
     {
-        attendanceManager.getAttendance("51235434", new AttendanceManager.OnReceiveAttendanceListener() {
+        attendanceManager.getUser("51235434", new AttendanceManager.onGetUserListener() {
             @Override
             public void OnStart() {
                 textView.setText("Getting attendance...");
             }
 
             @Override
-            public void OnSuccess(String timestamp, boolean isTappedIn) {
-                textView.setText(timestamp + " : " + isTappedIn);
+            public void OnSuccess(User user) {
+                textView.setText("Hello " + user.getName() + ". You last tapped in on " + user.getTapInTime());
             }
 
             @Override
