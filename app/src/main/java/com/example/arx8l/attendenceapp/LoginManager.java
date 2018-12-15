@@ -27,14 +27,16 @@ public class LoginManager
 
             @Override
             public void OnSuccess(DataSnapshot snapshot) {
+                userList.clear();
                     for(DataSnapshot userSnapshot : snapshot.getChildren())
                     {
                         User user = userSnapshot.getValue(User.class);
                         userList.add(user);
                     }
                     String passwordDatabase = userList.get(0).getPassword();
+                    String userID = userList.get(0).getUserID();
                     if(passwordDatabase.equals(passwordUser))
-                        listener.OnSuccess();
+                        listener.OnSuccess(userID);
                     else
                         listener.OnFailure();
             }
@@ -49,7 +51,7 @@ public class LoginManager
     public interface OnLoginListener
     {
         void OnStart();
-        void OnSuccess();
+        void OnSuccess(String userID);
         void OnFailure();
     }
 }

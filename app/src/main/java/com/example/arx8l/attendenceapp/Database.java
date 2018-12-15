@@ -11,19 +11,16 @@ import com.google.firebase.database.ValueEventListener;
 
 public class Database
 {
-    private DatabaseReference databaseUsers;
+    private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");;
 
-    public Database()
-    {
-        databaseUsers = FirebaseDatabase.getInstance().getReference("users");
-    }
+    public Database(){}
 
     private void createUser(String userID, String name, String email, String password)
     {
         User user = new User(userID, name, email, password);
-        String key = databaseUsers.push().getKey();
+        String key = userDatabase.push().getKey();
         if(key!=null)
-            databaseUsers.child(key).setValue(user);
+            userDatabase.child(key).setValue(user);
     }
 
     //Data sent/completion listener methods

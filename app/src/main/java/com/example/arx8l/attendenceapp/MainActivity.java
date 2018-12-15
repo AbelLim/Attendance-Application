@@ -10,7 +10,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView textView;
     private Button testButton;
-    private LoginManager loginManager;
+    private LoginManager loginManager = new LoginManager();
+    private AttendanceManager attendanceManager = new AttendanceManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,11 +21,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textView = (TextView) findViewById(R.id.textView);
         testButton = (Button) findViewById(R.id.testButton);
         testButton.setOnClickListener(this);
-        loginManager = new LoginManager();
     }
 
     @Override
     public void onClick(View view)
+    {
+
+    }
+
+    //THE FOLLOWING ARE TEST FUNCTIONS RELATED TO THE DATABASE
+
+    private void login()
     {
         loginManager.login("tom@my.jcu.edu.au", "Password", new LoginManager.OnLoginListener() {
             @Override
@@ -33,13 +40,73 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             @Override
-            public void OnSuccess() {
+            public void OnSuccess(String userID) {
                 textView.setText("Log in successful");
             }
 
             @Override
             public void OnFailure() {
                 textView.setText("Log in failed");
+            }
+        });
+    }
+
+    private void tapIn()
+    {
+        attendanceManager.tapIn("51235434", new AttendanceManager.OnTapInListener() {
+            @Override
+            public void OnStart() {
+                textView.setText("Tapping in...");
+            }
+
+            @Override
+            public void OnSuccess() {
+                textView.setText("Tap in successful");
+            }
+
+            @Override
+            public void OnFailure() {
+                textView.setText("Tap in failed");
+            }
+        });
+    }
+
+    private void tapOut()
+    {
+        attendanceManager.tapOut("51235434", new AttendanceManager.OnTapOutListener() {
+            @Override
+            public void OnStart() {
+                textView.setText("Tapping out...");
+            }
+
+            @Override
+            public void OnSuccess() {
+                textView.setText("Tap out successful");
+            }
+
+            @Override
+            public void OnFailure() {
+                textView.setText("Tap out failed");
+            }
+        });
+    }
+
+    private void getAttendance()
+    {
+        attendanceManager.getAttendance("51235434", new AttendanceManager.OnReceiveAttendanceListener() {
+            @Override
+            public void OnStart() {
+                textView.setText("Getting attendance...");
+            }
+
+            @Override
+            public void OnSuccess(String timestamp, boolean isTappedIn) {
+                textView.setText(timestamp + " : " + isTappedIn);
+            }
+
+            @Override
+            public void OnFailure() {
+                textView.setText("Get attendance failed");
             }
         });
     }
