@@ -89,12 +89,13 @@
                 android:orientation="horizontal">
 
                 <RelativeLayout
+                    android:id="@+id/campus_att"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
                     <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                        android:id="@+id/circularProgressBar1"
+                        android:id="@+id/campus_circle_progress_bar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="40dp"
@@ -106,14 +107,15 @@
                         app:progressbar_width="12dp" />
 
                     <TextView
+                        android:id="@+id/campus_percentage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:layout_centerVertical="true"
                         android:text="90%"
+                        android:textColor="#504d4e"
                         android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:textColor="#504d4e"/>
+                        android:textStyle="bold" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -124,7 +126,7 @@
                     android:background="@android:color/white">
 
                     <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                        android:id="@+id/circularProgressBar2"
+                        android:id="@+id/class_circle_progress_bar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="40dp"
@@ -136,21 +138,22 @@
                         app:progressbar_width="12dp" />
 
                     <TextView
+                        android:id="@+id/class_percentage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:layout_centerVertical="true"
                         android:text="90%"
-                        android:textStyle="bold"
+                        android:textColor="#504d4e"
                         android:textSize="32sp"
-                        android:textColor="#504d4e"/>
+                        android:textStyle="bold" />
 
                 </RelativeLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/campus_class_panel"
+                android:id="@+id/campus_class_text_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/circular_bar_panel"
@@ -176,8 +179,8 @@
 
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/attendance_panel"
-                android:layout_below="@id/campus_class_panel"
+                android:id="@+id/attendance_text_panel"
+                android:layout_below="@id/campus_class_text_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -187,16 +190,16 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Attendance"
-                    android:textSize="13sp"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Attendance"
-                    android:textSize="13sp"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:textSize="14sp" />
 
 
             </LinearLayout>
@@ -206,7 +209,7 @@
                 android:layout_marginTop="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/attendance_panel"
+                android:layout_below="@+id/attendance_text_panel"
                 android:gravity="center"
                 android:orientation="horizontal">
 

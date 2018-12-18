@@ -1,6 +1,8 @@
 package com.example.arx8l.attendenceapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,11 +17,14 @@ public class MainActivity extends AppCompatActivity {
 
     private Database database;
 
+//    SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        preferences = getSharedPreferences("frag prefs", MODE_PRIVATE);
         database = new Database();
 
         Intent mainMenuIntent = new Intent(this, MainMenuActivity.class);
@@ -37,5 +42,12 @@ public class MainActivity extends AppCompatActivity {
             textView.setText("Login Failed");*/
 //    }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.remove("current screen").commit();
     }
 }

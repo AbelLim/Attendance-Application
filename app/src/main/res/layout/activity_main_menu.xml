@@ -40,7 +40,7 @@
             app:srcCompat="@drawable/attendance" />
 
         <ImageView
-            android:id="@+id/check_attendance"
+            android:id="@+id/check_my_attendance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -48,7 +48,7 @@
             app:srcCompat="@drawable/timer" />
 
         <ImageView
-            android:id="@+id/medical"
+            android:id="@+id/medical_leave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

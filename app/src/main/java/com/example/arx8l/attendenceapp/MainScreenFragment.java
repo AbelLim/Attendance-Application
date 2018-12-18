@@ -27,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -54,15 +56,21 @@ public class MainScreenFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    Button tapOut;
+    Button tapOutBtt;
     RelativeLayout classAtt;
     LinearLayout countdownTimerLayout;
     TextView countDownTimerText;
-    ImageView tapIn;
+    TextView campusPercentageText;
+    TextView classPercentageText;
+    ImageView tapInTapOut;
+    CircularProgressBar campusCircleProgressBar;
+    CircularProgressBar classCircleProgressBar;
 
     private long mTimeLeftInMillis;
     private long timeUserTappedIn;
     private boolean userTappedIn;
+    private int classAttendance;
+    private int campusAttendance;
 
 
     public MainScreenFragment() {
@@ -103,14 +111,33 @@ public class MainScreenFragment extends Fragment {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
+
+
         SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
         userTappedIn = prefs.getBoolean("userTappedIn", false);
 
+        if (getArguments() != null) {
+            classAttendance = getArguments().getInt("class attendance");
+            campusAttendance = getArguments().getInt("campus attendance");
+        }
+
         countdownTimerLayout = myFragmentView.findViewById(R.id.countdown_timer_layout);
 
-        tapIn = getActivity().findViewById(R.id.tap_in_tap_out);
+        classPercentageText = myFragmentView.findViewById(R.id.class_percentage);
+        classCircleProgressBar = myFragmentView.findViewById(R.id.class_circle_progress_bar);
 
-        tapIn.setOnClickListener(new View.OnClickListener() {
+        campusPercentageText = myFragmentView.findViewById(R.id.campus_percentage);
+        campusCircleProgressBar = myFragmentView.findViewById(R.id.campus_circle_progress_bar);
+
+        classPercentageText.setText(classAttendance + "%");
+        classCircleProgressBar.setProgress(classAttendance);
+
+        campusPercentageText.setText(campusAttendance + "%");
+        campusCircleProgressBar.setProgress(campusAttendance);
+
+        tapInTapOut = getActivity().findViewById(R.id.tap_in_tap_out);
+
+        tapInTapOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
@@ -118,8 +145,8 @@ public class MainScreenFragment extends Fragment {
             }
         });
 
-        tapOut = myFragmentView.findViewById(R.id.tap_out);
-        tapOut.setOnClickListener(new View.OnClickListener() {
+        tapOutBtt = myFragmentView.findViewById(R.id.tap_out);
+        tapOutBtt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
@@ -131,7 +158,7 @@ public class MainScreenFragment extends Fragment {
         countDownTimerText.setTextSize(24);
 
         if (!userTappedIn){
-            tapOut.setVisibility(View.GONE);
+            tapOutBtt.setVisibility(View.GONE);
         }
 
 //        classAtt = myFragmentView.findViewById(R.id.class_att);
@@ -239,7 +266,7 @@ public class MainScreenFragment extends Fragment {
                 userTappedIn = false;
                 editor.putBoolean("userTappedIn", userTappedIn);
                 editor.apply();
-                tapOut.setVisibility(View.GONE);
+                tapOutBtt.setVisibility(View.GONE);
             } else {
                 alertMessage("Error");
             }
@@ -279,12 +306,12 @@ public class MainScreenFragment extends Fragment {
 
             if(timerFinished){
                 countdownTimerLayout.removeView(countDownTimerText);
-                tapOut.setVisibility(View.VISIBLE);
+                tapOutBtt.setVisibility(View.VISIBLE);
                 getActivity().stopService(new Intent(getContext(), BroadcastService.class));
                 Log.i(TAG, "Stopped service");
             }
             else {
-                tapOut.setVisibility(View.GONE);
+                tapOutBtt.setVisibility(View.GONE);
             }
         }
     }

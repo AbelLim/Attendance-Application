@@ -1,25 +1,39 @@
 package com.example.arx8l.attendenceapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainMenuActivity extends AppCompatActivity implements
-        MainScreenFragment.OnFragmentInteractionListener{
+        MainScreenFragment.OnFragmentInteractionListener,
+        CheckMyAttendanceFragment.OnFragmentInteractionListener,
+         ClassAttendanceFragment.OnFragmentInteractionListener,
+        CampusAttendanceFragment.OnFragmentInteractionListener{
 
     private Database database;
+    private Bundle bundle;
+    private int classAttendance = 95;
+    private int campusAttendance = 93;
 
     ImageView settings;
     ImageView tapInTapOut;
-    ImageView checkAttendance;
-    ImageView medical;
+    ImageView checkMyAttendance;
+    ImageView medicalLeave;
+
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +41,21 @@ public class MainMenuActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_menu);
         getSupportActionBar().hide();
 
-        database = new Database();
+        preferences = getSharedPreferences("prefs", Context.MODE_PRIVATE);
 
-        checkAttendance = findViewById(R.id.check_attendance);
+        database = new Database();
+        bundle = new Bundle();
+
+        bundle.putInt("class attendance", classAttendance);
+        bundle.putInt("campus attendance", campusAttendance);
+
+        checkMyAttendance = findViewById(R.id.check_my_attendance);
         tapInTapOut = findViewById(R.id.tap_in_tap_out);
-        medical = findViewById(R.id.medical);
+        medicalLeave = findViewById(R.id.medical_leave);
         settings = findViewById(R.id.settings);
 
         MainScreenFragment mainScreenFragment = new MainScreenFragment();
+        mainScreenFragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.main_frag, mainScreenFragment, "");
@@ -47,19 +68,21 @@ public class MainMenuActivity extends AppCompatActivity implements
             }
         });
 
-        checkAttendance.setOnClickListener(new View.OnClickListener() {
+        checkMyAttendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                CheckAttendanceFragment checkAttendanceFragment = new CheckAttendanceFragment();
-//                FragmentManager fragmentManager = getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.replace(R.id.main_frag, checkAttendanceFragment, "");
-//                fragmentTransaction.commit();
+                CheckMyAttendanceFragment checkMyAttendanceFragment = new CheckMyAttendanceFragment();
+                checkMyAttendanceFragment.setArguments(bundle);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.popBackStack();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frag, checkMyAttendanceFragment, "").addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
 
-        medical.setOnClickListener(new View.OnClickListener() {
+        medicalLeave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
@@ -77,4 +100,9 @@ public class MainMenuActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 }
