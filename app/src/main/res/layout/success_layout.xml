@@ -29,7 +29,7 @@
         android:id="@+id/imageView"
         android:layout_width="172dp"
         android:layout_height="240dp"
-        app:srcCompat="@drawable/Sign"
+        app:srcCompat="@drawable/sign"
         tools:layout_editor_absoluteX="106dp"
         tools:layout_editor_absoluteY="87dp" />
 

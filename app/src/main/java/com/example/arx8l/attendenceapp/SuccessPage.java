@@ -8,6 +8,6 @@ public class SuccessPage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.Success_Layout);
+        setContentView(R.layout.success_layout);
     }
 }
