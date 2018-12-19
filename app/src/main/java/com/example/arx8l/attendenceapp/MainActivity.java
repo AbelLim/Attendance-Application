@@ -16,7 +16,9 @@ public class MainActivity extends AppCompatActivity {
 
         Intent mainMenuIntent = new Intent(this, MainMenuActivity.class);
         startActivity(mainMenuIntent);
+
     }
+
 
 
     @Override

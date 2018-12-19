@@ -29,8 +29,7 @@ public class MainMenuActivity extends AppCompatActivity implements
 //    private Database database;
     private Bundle bundle;
     private int classAttendance = 95;
-    private int campusAttendance;
-    private int schoolDays = 65;
+    private int campusAttendance = 50;
     private int daysTappedIn;
 
     ImageView settings;
@@ -57,8 +56,6 @@ public class MainMenuActivity extends AppCompatActivity implements
         settings = findViewById(R.id.settings);
 
         bundle = new Bundle();
-
-        campusAttendance = (int) (((float)daysTappedIn/(float) schoolDays) * 100);
 
         bundle.putInt("class attendance", classAttendance);
         bundle.putInt("campus attendance", campusAttendance);
@@ -117,9 +114,8 @@ public class MainMenuActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void someEvent(int days) {
-        this.daysTappedIn = days;
-        campusAttendance = (int) (((float)daysTappedIn/(float) schoolDays) * 100);
+    public void someEvent(int campusAttendance) {
+        this.campusAttendance = campusAttendance;
 
         bundle.putInt("class attendance", classAttendance);
         bundle.putInt("campus attendance", campusAttendance);

@@ -1,5 +1,7 @@
 package com.example.arx8l.attendenceapp;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -8,9 +10,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentManager;
@@ -30,6 +37,10 @@ import android.widget.TextView;
 
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -68,6 +79,8 @@ public class MainScreenFragment extends Fragment {
     CircularProgressBar classCircleProgressBar;
 
     CountDownTimer cdt;
+    AttendanceManager attendanceManager;
+    User u;
 
     private long mTimeLeftInMillis = 30000;
     private long timeUserTappedIn;
@@ -75,7 +88,7 @@ public class MainScreenFragment extends Fragment {
     private boolean timerIsRunning;
     private int classAttendance;
     private int campusAttendance;
-    private int daysTappedIn;
+    private String userId = "12345678";
 
 
     public MainScreenFragment() {
@@ -107,7 +120,6 @@ public class MainScreenFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
     }
 
     @Override
@@ -116,10 +128,11 @@ public class MainScreenFragment extends Fragment {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
-        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
-        userTappedIn = prefs.getBoolean("userTappedIn", false);
-        daysTappedIn = prefs.getInt("daysTappedIn", 30);
-        timeUserTappedIn = prefs.getLong("timeUserTappedIn", 0);
+//        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+
+//        userTappedIn = prefs.getBoolean("userTappedIn", false);
+//        timeUserTappedIn = prefs.getLong("timeUserTappedIn", 0);
+
 
         if (getArguments() != null) {
             classAttendance = getArguments().getInt("class attendance");
@@ -129,24 +142,28 @@ public class MainScreenFragment extends Fragment {
         countdownTimerLayout = myFragmentView.findViewById(R.id.countdown_timer_layout);
 
         classPercentageText = myFragmentView.findViewById(R.id.class_percentage);
-        classCircleProgressBar = myFragmentView.findViewById(R.id.class_circle_progress_bar);
-
-        campusPercentageText = myFragmentView.findViewById(R.id.campus_percentage);
-        campusCircleProgressBar = myFragmentView.findViewById(R.id.campus_circle_progress_bar);
-
         classPercentageText.setText(classAttendance + "%");
+        classCircleProgressBar = myFragmentView.findViewById(R.id.class_circle_progress_bar);
         classCircleProgressBar.setProgress(classAttendance);
 
+        campusPercentageText = myFragmentView.findViewById(R.id.campus_percentage);
         campusPercentageText.setText(campusAttendance + "%");
+        campusCircleProgressBar = myFragmentView.findViewById(R.id.campus_circle_progress_bar);
         campusCircleProgressBar.setProgress(campusAttendance);
+
 
         tapInTapOut = getActivity().findViewById(R.id.tap_in_tap_out);
 
         tapInTapOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                startActivityForResult(getQrCodeResultIntent, 1);
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions( new String[]{Manifest.permission.CAMERA}, 1);
+                }
+                else {
+                    Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                    startActivityForResult(getQrCodeResultIntent, 1);
+                }
             }
         });
 
@@ -154,8 +171,13 @@ public class MainScreenFragment extends Fragment {
         tapOutBtt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                startActivityForResult(getQrCodeResultIntent, 2);
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions( new String[]{Manifest.permission.CAMERA}, 2);
+                }
+                else {
+                    Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                    startActivityForResult(getQrCodeResultIntent, 2);
+                }
             }
         });
 
@@ -180,26 +202,46 @@ public class MainScreenFragment extends Fragment {
 //        ForegroundColorSpan fcsRed = new ForegroundColorSpan(Color.RED);
 //        ss.setSpan(fcsRed, 8, 11, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 //        tappingOut.setText(ss);
-
-//        if (userTappedIn){
-//            countdownTimerLayout.addView(countDownTimerText);
-//            startTimer();
-//            getActivity().startService(new Intent(getContext(), BroadcastService.class));
-//            Log.i(TAG, "Started service");
-//        }
         tapOutBtt.setVisibility(View.GONE);
 
-        if(userTappedIn && cdt == null){
-            countdownTimerLayout.addView(countDownTimerText);
-            startTimer();
-        }
-        else if (userTappedIn){
-            countdownTimerLayout.addView(countDownTimerText);
-        }
+        attendanceManager = new AttendanceManager();
 
-        if (cdt != null && !timerIsRunning){
-            tapOutBtt.setVisibility(View.VISIBLE);
-        }
+        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+            @Override
+            public void OnStart() {
+
+            }
+
+            @Override
+            public void OnSuccess(User user) {
+                u = user;
+
+                userTappedIn = u.getTappedIn();
+
+                if(userTappedIn && cdt == null){
+                    countdownTimerLayout.addView(countDownTimerText);
+                    Date date = new Date();
+                    try {
+                        date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    timeUserTappedIn = date.getTime();
+                    startTimer();
+                }
+                else if (cdt != null && !timerIsRunning){
+                    tapOutBtt.setVisibility(View.VISIBLE);
+                }
+                else if (userTappedIn){
+                    countdownTimerLayout.addView(countDownTimerText);
+                }
+            }
+
+            @Override
+            public void OnFailure() {
+
+            }
+        });
 
         return myFragmentView;
 
@@ -212,8 +254,23 @@ public class MainScreenFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1: {
+                Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                startActivityForResult(getQrCodeResultIntent, 1);
+            }
+            case 2:
+                Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                startActivityForResult(getQrCodeResultIntent, 2);
+        }
+    }
+
+
     public interface OnSomeEventListener {
-        public void someEvent(int daysTappedIn);
+        public void someEvent(int campusAtt);
     }
 
     OnSomeEventListener someEventListener;
@@ -252,29 +309,73 @@ public class MainScreenFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (requestCode == 1 && resultCode == 0 && data != null) {
             String result = data.getStringExtra("cc");
 
             if (result.equals("JCU QR Code Attendance")) {
-                alertMessage("Successfully Tapped In!");
-                timeUserTappedIn = System.currentTimeMillis();
+                attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
+                    @Override
+                    public void OnStart() {
 
-                countdownTimerLayout.addView(countDownTimerText);
+                    }
+
+                    @Override
+                    public void OnSuccess() {
+                        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                            @Override
+                            public void OnStart() {
+
+                            }
+
+                            @Override
+                            public void OnSuccess(User user) {
+                                u = user;
+                                alertMessage("Successfully Tapped In!");
+                                countdownTimerLayout.addView(countDownTimerText);
+                                Date date = new Date();
+                                try {
+                                    date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                timeUserTappedIn = date.getTime();
+                                userTappedIn = u.getTappedIn();
+                                startTimer();
+
+                            }
+
+                            @Override
+                            public void OnFailure() {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void OnFailure() {
+
+                    }
+                });
+
+
+//                alertMessage("Successfully Tapped In!");
+//                countdownTimerLayout.addView(countDownTimerText);
+
+//                timeUserTappedIn = System.currentTimeMillis();
+
 
 //                getActivity().startService(new Intent(getActivity(), BroadcastService.class));
 //                Log.i(TAG, "Started service");
 
-                startTimer();
+//                userTappedIn = true;
 
-                userTappedIn = true;
-
-                SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-
-                editor.putBoolean("userTappedIn", userTappedIn);
-                editor.putLong("timeUserTappedIn", timeUserTappedIn);
-                editor.apply();
+//                SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+//                SharedPreferences.Editor editor = prefs.edit();
+//
+//                editor.putBoolean("userTappedIn", userTappedIn);
+//                editor.putLong("timeUserTappedIn", timeUserTappedIn);
+//                editor.apply();
 
             } else {
                 alertMessage("Error");
@@ -283,18 +384,54 @@ public class MainScreenFragment extends Fragment {
         else if(requestCode == 2 && resultCode == 0 && data != null){
             String result = data.getStringExtra("cc");
             if (result.equals("JCU QR Code Attendance")) {
-                alertMessage("Successfully Tapped Out!");
+                attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
+                    @Override
+                    public void OnStart() {
 
-                daysTappedIn += 1;
-                someEventListener.someEvent(daysTappedIn);
+                    }
 
-                SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                userTappedIn = false;
-                editor.putBoolean("userTappedIn", userTappedIn);
-                editor.putInt("daysTappedIn", daysTappedIn);
-                editor.apply();
-                tapOutBtt.setVisibility(View.GONE);
+                    @Override
+                    public void OnSuccess() {
+                        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                            @Override
+                            public void OnStart() {
+
+                            }
+
+                            @Override
+                            public void OnSuccess(User user) {
+                                u = user;
+                                alertMessage("Successfully Tapped Out!");
+                                campusAttendance += 2;
+                                someEventListener.someEvent(campusAttendance);
+                                userTappedIn = u.getTappedIn();
+                                tapOutBtt.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void OnFailure() {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void OnFailure() {
+
+                    }
+                });
+
+//                alertMessage("Successfully Tapped Out!");
+
+//                daysTappedIn += 1;
+//                someEventListener.someEvent(daysTappedIn);
+
+//                SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+//                SharedPreferences.Editor editor = prefs.edit();
+//                userTappedIn = false;
+//                editor.putBoolean("userTappedIn", userTappedIn);
+//                editor.apply();
+//                tapOutBtt.setVisibility(View.GONE);
             } else {
                 alertMessage("Error");
             }
@@ -375,11 +512,6 @@ public class MainScreenFragment extends Fragment {
 
     @Override
     public void onStop() {
-//        try {
-//            getActivity().unregisterReceiver(br);
-//        } catch (Exception e) {
-//            // Receiver was probably already stopped in onPause()
-//        }
         super.onStop();
     }
 
@@ -391,22 +523,15 @@ public class MainScreenFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        getActivity().stopService(new Intent(getContext(), BroadcastService.class));
-//        Log.i(TAG, "Stopped service");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-//        startTimer();
-//        getActivity().registerReceiver(br, new IntentFilter(BroadcastService.COUNTDOWN_BR));
-//        Log.i(TAG, "Registered broacast receiver");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        getActivity().unregisterReceiver(br);
-//        Log.i(TAG, "Unregistered broacast receiver");
     }
 }
