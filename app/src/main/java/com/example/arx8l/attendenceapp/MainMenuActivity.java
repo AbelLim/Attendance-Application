@@ -1,32 +1,37 @@
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 public class MainMenuActivity extends AppCompatActivity implements
         MainScreenFragment.OnFragmentInteractionListener,
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
          ClassAttendanceFragment.OnFragmentInteractionListener,
-        CampusAttendanceFragment.OnFragmentInteractionListener{
+        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnSomeEventListener {
 
-    private Database database;
+//    private Database database;
     private Bundle bundle;
     private int classAttendance = 95;
-    private int campusAttendance = 93;
+    private int campusAttendance;
+    private int schoolDays = 65;
+    private int daysTappedIn;
 
     ImageView settings;
     ImageView tapInTapOut;
@@ -41,18 +46,22 @@ public class MainMenuActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_menu);
         getSupportActionBar().hide();
 
-        preferences = getSharedPreferences("prefs", Context.MODE_PRIVATE);
+//        database = new Database();
 
-        database = new Database();
-        bundle = new Bundle();
-
-        bundle.putInt("class attendance", classAttendance);
-        bundle.putInt("campus attendance", campusAttendance);
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+        daysTappedIn = sharedPreferences.getInt("daysTappedIn", 30);
 
         checkMyAttendance = findViewById(R.id.check_my_attendance);
         tapInTapOut = findViewById(R.id.tap_in_tap_out);
         medicalLeave = findViewById(R.id.medical_leave);
         settings = findViewById(R.id.settings);
+
+        bundle = new Bundle();
+
+        campusAttendance = (int) (((float)daysTappedIn/(float) schoolDays) * 100);
+
+        bundle.putInt("class attendance", classAttendance);
+        bundle.putInt("campus attendance", campusAttendance);
 
         MainScreenFragment mainScreenFragment = new MainScreenFragment();
         mainScreenFragment.setArguments(bundle);
@@ -98,11 +107,28 @@ public class MainMenuActivity extends AppCompatActivity implements
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+    }
+
+    @Override
+    public void someEvent(int days) {
+        this.daysTappedIn = days;
+        campusAttendance = (int) (((float)daysTappedIn/(float) schoolDays) * 100);
+
+        bundle.putInt("class attendance", classAttendance);
+        bundle.putInt("campus attendance", campusAttendance);
+
+        MainScreenFragment mainScreenFragment = new MainScreenFragment();
+        mainScreenFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.main_frag, mainScreenFragment, "");
+        fragmentTransaction.commit();
     }
 }

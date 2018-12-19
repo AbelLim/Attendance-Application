@@ -217,8 +217,7 @@
                     android:id="@+id/tap_out"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tap Out"
-                    android:textSize="24sp"/>
+                    android:text="Tap Out" />
 
             </LinearLayout>
 

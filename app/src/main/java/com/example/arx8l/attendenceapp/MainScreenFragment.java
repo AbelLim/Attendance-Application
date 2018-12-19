@@ -1,5 +1,6 @@
 package com.example.arx8l.attendenceapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -66,11 +67,15 @@ public class MainScreenFragment extends Fragment {
     CircularProgressBar campusCircleProgressBar;
     CircularProgressBar classCircleProgressBar;
 
-    private long mTimeLeftInMillis;
+    CountDownTimer cdt;
+
+    private long mTimeLeftInMillis = 30000;
     private long timeUserTappedIn;
     private boolean userTappedIn;
+    private boolean timerIsRunning;
     private int classAttendance;
     private int campusAttendance;
+    private int daysTappedIn;
 
 
     public MainScreenFragment() {
@@ -111,10 +116,10 @@ public class MainScreenFragment extends Fragment {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
-
-
         SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
         userTappedIn = prefs.getBoolean("userTappedIn", false);
+        daysTappedIn = prefs.getInt("daysTappedIn", 30);
+        timeUserTappedIn = prefs.getLong("timeUserTappedIn", 0);
 
         if (getArguments() != null) {
             classAttendance = getArguments().getInt("class attendance");
@@ -157,10 +162,6 @@ public class MainScreenFragment extends Fragment {
         countDownTimerText = new TextView(getContext());
         countDownTimerText.setTextSize(24);
 
-        if (!userTappedIn){
-            tapOutBtt.setVisibility(View.GONE);
-        }
-
 //        classAtt = myFragmentView.findViewById(R.id.class_att);
 //        classAtt.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -180,10 +181,24 @@ public class MainScreenFragment extends Fragment {
 //        ss.setSpan(fcsRed, 8, 11, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 //        tappingOut.setText(ss);
 
-        if (userTappedIn){
+//        if (userTappedIn){
+//            countdownTimerLayout.addView(countDownTimerText);
+//            startTimer();
+//            getActivity().startService(new Intent(getContext(), BroadcastService.class));
+//            Log.i(TAG, "Started service");
+//        }
+        tapOutBtt.setVisibility(View.GONE);
+
+        if(userTappedIn && cdt == null){
             countdownTimerLayout.addView(countDownTimerText);
-            getActivity().startService(new Intent(getContext(), BroadcastService.class));
-            Log.i(TAG, "Started service");
+            startTimer();
+        }
+        else if (userTappedIn){
+            countdownTimerLayout.addView(countDownTimerText);
+        }
+
+        if (cdt != null && !timerIsRunning){
+            tapOutBtt.setVisibility(View.VISIBLE);
         }
 
         return myFragmentView;
@@ -197,11 +212,18 @@ public class MainScreenFragment extends Fragment {
         }
     }
 
+    public interface OnSomeEventListener {
+        public void someEvent(int daysTappedIn);
+    }
+
+    OnSomeEventListener someEventListener;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
+            someEventListener = (OnSomeEventListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -240,8 +262,10 @@ public class MainScreenFragment extends Fragment {
 
                 countdownTimerLayout.addView(countDownTimerText);
 
-                getActivity().startService(new Intent(getActivity(), BroadcastService.class));
-                Log.i(TAG, "Started service");
+//                getActivity().startService(new Intent(getActivity(), BroadcastService.class));
+//                Log.i(TAG, "Started service");
+
+                startTimer();
 
                 userTappedIn = true;
 
@@ -261,10 +285,14 @@ public class MainScreenFragment extends Fragment {
             if (result.equals("JCU QR Code Attendance")) {
                 alertMessage("Successfully Tapped Out!");
 
+                daysTappedIn += 1;
+                someEventListener.someEvent(daysTappedIn);
+
                 SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
                 userTappedIn = false;
                 editor.putBoolean("userTappedIn", userTappedIn);
+                editor.putInt("daysTappedIn", daysTappedIn);
                 editor.apply();
                 tapOutBtt.setVisibility(View.GONE);
             } else {
@@ -286,44 +314,72 @@ public class MainScreenFragment extends Fragment {
         alertDialog.show();
     }
 
-    private BroadcastReceiver br = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateGUI(intent); // or whatever method used to update your GUI fields
-        }
-    };
+//    private BroadcastReceiver br = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            updateGUI(intent); // or whatever method used to update your GUI fields
+//        }
+//    };
+//
+//    private void updateGUI(Intent intent) {
+//        if (intent.getExtras() != null) {
+//            long millisUntilFinished = intent.getLongExtra("countdown", 0);
+//            boolean timerFinished = intent.getBooleanExtra("timer finish", false);
+//
+//            long hour = TimeUnit.MILLISECONDS.toHours(millisUntilFinished);
+//            long minute = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished));
+//            long second = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished));
+//
+//            String hms = String.format("Tapping Out in: " + "%02d:%02d:%02d", hour, minute, second);
+//            countDownTimerText.setText(hms);//set text
+//
+//            if(timerFinished){
+//                countdownTimerLayout.removeView(countDownTimerText);
+//                tapOutBtt.setVisibility(View.VISIBLE);
+//                getActivity().stopService(new Intent(getContext(), BroadcastService.class));
+//                Log.i(TAG, "Stopped service");
+//            }
+//            else {
+//                tapOutBtt.setVisibility(View.GONE);
+//            }
+//        }
+//    }
 
-    private void updateGUI(Intent intent) {
-        if (intent.getExtras() != null) {
-            long millisUntilFinished = intent.getLongExtra("countdown", 0);
-            boolean timerFinished = intent.getBooleanExtra("timer finish", false);
+    public void startTimer(){
+        mTimeLeftInMillis = mTimeLeftInMillis - (System.currentTimeMillis() - timeUserTappedIn);
+        System.out.println(mTimeLeftInMillis);
 
-            String hms = String.format("Tapping Out in: " + "%02d:%02d:%02d",
-                    TimeUnit.MILLISECONDS.toHours(millisUntilFinished),
-                    TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished)),
-                    TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
-            countDownTimerText.setText(hms);//set text
+        cdt = new CountDownTimer(mTimeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timerIsRunning = true;
+                mTimeLeftInMillis = millisUntilFinished;
+                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
+                long hour = TimeUnit.MILLISECONDS.toHours(millisUntilFinished);
+                long minute = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished));
+                long second = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished));
 
-            if(timerFinished){
+                String hms = String.format("Tapping Out in: " + "%02d:%02d:%02d", hour, minute, second);
+                countDownTimerText.setText(hms);//set text
+            }
+
+            @Override
+            public void onFinish() {
+                timerIsRunning = false;
                 countdownTimerLayout.removeView(countDownTimerText);
                 tapOutBtt.setVisibility(View.VISIBLE);
-                getActivity().stopService(new Intent(getContext(), BroadcastService.class));
-                Log.i(TAG, "Stopped service");
             }
-            else {
-                tapOutBtt.setVisibility(View.GONE);
-            }
-        }
+        };
+        cdt.start();
     }
 
     @Override
     public void onStop() {
-        try {
-            getActivity().unregisterReceiver(br);
-        } catch (Exception e) {
-            // Receiver was probably already stopped in onPause()
-        }
-
+//        try {
+//            getActivity().unregisterReceiver(br);
+//        } catch (Exception e) {
+//            // Receiver was probably already stopped in onPause()
+//        }
         super.onStop();
     }
 
@@ -334,22 +390,23 @@ public class MainScreenFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        getActivity().stopService(new Intent(getContext(), BroadcastService.class));
-        Log.i(TAG, "Stopped service");
         super.onDestroy();
+//        getActivity().stopService(new Intent(getContext(), BroadcastService.class));
+//        Log.i(TAG, "Stopped service");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(br, new IntentFilter(BroadcastService.COUNTDOWN_BR));
-        Log.i(TAG, "Registered broacast receiver");
+//        startTimer();
+//        getActivity().registerReceiver(br, new IntentFilter(BroadcastService.COUNTDOWN_BR));
+//        Log.i(TAG, "Registered broacast receiver");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getActivity().unregisterReceiver(br);
-        Log.i(TAG, "Unregistered broacast receiver");
+//        getActivity().unregisterReceiver(br);
+//        Log.i(TAG, "Unregistered broacast receiver");
     }
 }
