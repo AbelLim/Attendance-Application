@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#BAFFFFFF"
+        />
+    <EditText
+        android:id="@+id/et_cer"
+        android:paddingLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="27dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Enter Certificate NO."/>
+    <TextView
+        android:id="@+id/et_photo"
+        android:gravity="center_vertical"
+        android:layout_below="@id/et_cer"
+        android:paddingLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="27dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Upload Photo"/>
+
+    <LinearLayout
+        android:id="@+id/ll_date"
+        android:layout_below="@id/et_photo"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="27dp"
+        android:background="@drawable/et_bg"
+        android:layout_marginRight="27dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_marginLeft="16dp"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Peroid of Absence"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:paddingRight="8dp"
+            android:hint="select here"
+            android:layout_height="match_parent"
+            android:background="@null"
+            />
+    </LinearLayout>
+    <EditText
+        android:id="@+id/et_reason"
+        android:layout_below="@id/ll_date"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:layout_marginLeft="27dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:singleLine="true"
+        android:gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:hint="YOUR REASON"/>
+
+    <Button
+        android:id="@+id/bt_submit"
+        android:layout_marginLeft="27dp"
+        android:layout_marginRight="27dp"
+        android:textColor="@color/white"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/et_reason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:background="@drawable/corner_submit"/>
+</RelativeLayout>
