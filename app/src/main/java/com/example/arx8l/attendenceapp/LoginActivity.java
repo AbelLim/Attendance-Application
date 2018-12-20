@@ -10,6 +10,10 @@ import android.widget.EditText;
 
 import org.w3c.dom.Text;
 
+/**
+ * 登录
+ * @author  Lijinfeng
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etName;
