@@ -23,10 +23,9 @@ import java.io.OutputStreamWriter;
 public class MainMenuActivity extends AppCompatActivity implements
         MainScreenFragment.OnFragmentInteractionListener,
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
-         ClassAttendanceFragment.OnFragmentInteractionListener,
+        ClassAttendanceFragment.OnFragmentInteractionListener,
         CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnSomeEventListener {
 
-//    private Database database;
     private Bundle bundle;
     private int classAttendance = 95;
     private int campusAttendance;
@@ -94,11 +93,11 @@ public class MainMenuActivity extends AppCompatActivity implements
         medicalLeave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
-//                FragmentManager fragmentManager = getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
-//                fragmentTransaction.commit();
+                MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
+                fragmentTransaction.commit();
 
             }
         });
