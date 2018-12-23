@@ -6,18 +6,18 @@ import java.util.Date;
 public class User {
     private String userID;
     private String name;
-    private String email;
+    private String loginID;
     private String password;
     private Boolean isTappedIn;
     private String tapInTime;
 
     public User(){}
 
-    public User(String userID, String name, String email, String password)
+    public User(String userID, String name, String loginID, String password)
     {
         this.userID = userID;
         this.name = name;
-        this.email = email;
+        this.loginID = loginID;
         this.password = password;
         this.isTappedIn = false;
     }
@@ -38,12 +38,12 @@ public class User {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getLoginID() {
+        return loginID;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setLoginID(String loginID) {
+        this.loginID = loginID;
     }
 
     public String getPassword() {
