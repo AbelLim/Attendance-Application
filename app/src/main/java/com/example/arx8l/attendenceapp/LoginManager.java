@@ -35,7 +35,8 @@ public class LoginManager
                 }
                 String passwordDatabase = userList.get(0).getPassword();
                 User mUser = userList.get(0);
-                if(passwordDatabase.equals(password))
+                String hPassword = database.hashPassword(password);
+                if(passwordDatabase.equals(hPassword))
                     listener.OnSuccess(mUser);
                 else
                     listener.OnFailure();
