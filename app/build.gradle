@@ -45,4 +45,6 @@ dependencies {
     implementation 'com.loopeer.lib:shadow:0.0.4-beta3'
     implementation 'com.akexorcist:RoundCornerProgressBar:2.0.3'
     implementation 'com.google.guava:guava:27.0.1-jre'
+    implementation 'com.google.firebase:firebase-storage:16.0.1'
+    implementation 'com.google.firebase:firebase-auth:16.0.1'
 }
