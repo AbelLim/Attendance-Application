@@ -9,15 +9,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class Database
 {
     private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");;
 
     public Database(){}
 
-    public void createUser(String userID, String name, String email, String password)
+    public void createUser(String userID, String name, String loginID, String password)
     {
-        User user = new User(userID, name, email, password);
+        String hPassword = hashPassword(password);
+        User user = new User(userID, name, loginID, hPassword);
         String key = userDatabase.push().getKey();
         if(key!=null)
             userDatabase.child(key).setValue(user);
@@ -48,5 +53,31 @@ public class Database
                 listener.OnFailure();
             }
         });
+    }
+
+    public String hashPassword(String string)
+    {
+        String result = "";
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(string.getBytes(StandardCharsets.UTF_8));
+            result = bytesToHex(encodedhash);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+
+        }
+        return result;
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

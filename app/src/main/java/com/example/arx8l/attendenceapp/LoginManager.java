@@ -15,10 +15,10 @@ public class LoginManager
 
     public LoginManager(){}
 
-    public void login(String email, final String passwordUser, final OnLoginListener listener)
+    public void login(String loginID, final String password, final OnLoginListener listener)
     {
         final DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");
-        Query query = userDatabase.orderByChild("email").equalTo(email);
+        Query query = userDatabase.orderByChild("loginID").equalTo(loginID);
         database.readData(query, new Database.OnGetDataListener() {
             @Override
             public void OnStart() {
@@ -35,7 +35,8 @@ public class LoginManager
                 }
                 String passwordDatabase = userList.get(0).getPassword();
                 User mUser = userList.get(0);
-                if(passwordDatabase.equals(passwordUser))
+                String hPassword = database.hashPassword(password);
+                if(passwordDatabase.equals(hPassword))
                     listener.OnSuccess(mUser);
                 else
                     listener.OnFailure();
