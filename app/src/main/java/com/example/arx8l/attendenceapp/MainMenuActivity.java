@@ -64,7 +64,8 @@ public class MainMenuActivity extends AppCompatActivity implements
     private String endDateInString = "25/12/2018";
     private LocalDate currentDate;
     private String currentDateString;
-    private String userId = "12345678";
+    private String userId;
+    private User userInfo;
 
     ImageView settings;
     ImageView tapInTapOut;
@@ -84,6 +85,8 @@ public class MainMenuActivity extends AppCompatActivity implements
 
         attendanceManager = new AttendanceManager();
 
+        //Get User info from server.
+        requestUserInfo();
 
         loadHashMap();
 
@@ -255,6 +258,27 @@ public class MainMenuActivity extends AppCompatActivity implements
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
                 fragmentTransaction.commit();
+
+            }
+        });
+    }
+
+    private void requestUserInfo() {
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("UserID");
+        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+            @Override
+            public void OnStart() {
+
+            }
+
+            @Override
+            public void OnSuccess(User user) {
+                userInfo = user;
+            }
+
+            @Override
+            public void OnFailure() {
 
             }
         });

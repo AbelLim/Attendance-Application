@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void OnSuccess(User user) {
                 Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
-                intent.putExtra("User", user.getUserID());
+                intent.putExtra("UserID", user.getUserID());
                 startActivity(intent);
             }
 
