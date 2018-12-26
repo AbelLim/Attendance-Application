@@ -37,10 +37,23 @@ import android.widget.TextView;
 
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -54,7 +67,7 @@ import static android.content.Context.MODE_PRIVATE;
  * Use the {@link MainScreenFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainScreenFragment extends Fragment {
+public class MainScreenFragment extends Fragment{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -77,6 +90,7 @@ public class MainScreenFragment extends Fragment {
     ImageView tapInTapOut;
     CircularProgressBar campusCircleProgressBar;
     CircularProgressBar classCircleProgressBar;
+    LocalDate currentDate;
 
     CountDownTimer cdt;
     AttendanceManager attendanceManager;
@@ -89,6 +103,8 @@ public class MainScreenFragment extends Fragment {
     private int classAttendance;
     private int campusAttendance;
     private String userId = "12345678";
+    private HashMap<String, Boolean> campusAttendanceDaysCheck;
+    private String currentDateString;
 
 
     public MainScreenFragment() {
@@ -133,6 +149,36 @@ public class MainScreenFragment extends Fragment {
 //        userTappedIn = prefs.getBoolean("userTappedIn", false);
 //        timeUserTappedIn = prefs.getLong("timeUserTappedIn", 0);
 
+        currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        currentDateString = currentDate.format(formatter);
+
+        loadHashMap();
+
+        System.out.println("MainScreenFragment >>> ");
+//        for (String name: campusAttendanceDaysCheck.keySet()){
+//            String key = name;
+//            Boolean value = campusAttendanceDaysCheck.get(name);
+//            System.out.println(key + ": " + value);
+//        }
+
+        ArrayList<String> sortedKeys =
+                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
+        Collections.sort(sortedKeys, new Comparator<String>() {
+            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+            @Override
+            public int compare(String o1, String o2) {
+                try {
+                    return f.parse(o1).compareTo(f.parse(o2));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
+
+        for (String x : sortedKeys)
+            System.out.println(x + ": " + campusAttendanceDaysCheck.get(x));
+
 
         if (getArguments() != null) {
             classAttendance = getArguments().getInt("class attendance");
@@ -161,8 +207,14 @@ public class MainScreenFragment extends Fragment {
                     requestPermissions( new String[]{Manifest.permission.CAMERA}, 1);
                 }
                 else {
-                    Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                    startActivityForResult(getQrCodeResultIntent, 1);
+                    if (tapOutBtt.getVisibility() == View.VISIBLE){
+                        Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                        startActivityForResult(getQrCodeResultIntent, 2);
+                    }
+                    else {
+                        Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                        startActivityForResult(getQrCodeResultIntent, 1);
+                    }
                 }
             }
         });
@@ -257,6 +309,11 @@ public class MainScreenFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
         switch (requestCode) {
             case 1: {
                 Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
@@ -270,7 +327,7 @@ public class MainScreenFragment extends Fragment {
 
 
     public interface OnSomeEventListener {
-        public void someEvent(int campusAtt);
+        public void someEvent(HashMap<String, Boolean> campusDaysCheck);
     }
 
     OnSomeEventListener someEventListener;
@@ -316,7 +373,15 @@ public class MainScreenFragment extends Fragment {
             if (result.equals("JCU QR Code Attendance") && timerIsRunning){
                 alertMessage("Not Yet");
             }
-            else if (result.equals("JCU QR Code Attendance")) {
+            else if (result.equals("JCU QR Code Attendance") && !campusAttendanceDaysCheck.containsKey(currentDateString)){
+                alertMessage("Error");
+            }
+            else if (result.equals("JCU QR Code Attendance") && campusAttendanceDaysCheck.get(currentDateString) != null){
+                if (campusAttendanceDaysCheck.get(currentDateString)){
+                    alertMessage("Today you have successfully tapped in and tapped out!");
+                }
+            }
+            else if (result.equals("JCU QR Code Attendance") && campusAttendanceDaysCheck.get(currentDateString) == null) {
                 attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
                     @Override
                     public void OnStart() {
@@ -361,25 +426,6 @@ public class MainScreenFragment extends Fragment {
                     }
                 });
 
-
-//                alertMessage("Successfully Tapped In!");
-//                countdownTimerLayout.addView(countDownTimerText);
-
-//                timeUserTappedIn = System.currentTimeMillis();
-
-
-//                getActivity().startService(new Intent(getActivity(), BroadcastService.class));
-//                Log.i(TAG, "Started service");
-
-//                userTappedIn = true;
-
-//                SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
-//                SharedPreferences.Editor editor = prefs.edit();
-//
-//                editor.putBoolean("userTappedIn", userTappedIn);
-//                editor.putLong("timeUserTappedIn", timeUserTappedIn);
-//                editor.apply();
-
             } else {
                 alertMessage("Error");
             }
@@ -405,8 +451,14 @@ public class MainScreenFragment extends Fragment {
                             public void OnSuccess(User user) {
                                 u = user;
                                 alertMessage("Successfully Tapped Out!");
-                                campusAttendance += 2;
-                                someEventListener.someEvent(campusAttendance);
+
+                                if (campusAttendanceDaysCheck.get(currentDateString) == null){
+                                    campusAttendanceDaysCheck.put(currentDateString, true);
+                                }
+
+                                saveHashMap();
+
+                                someEventListener.someEvent(campusAttendanceDaysCheck);
                                 userTappedIn = u.getTappedIn();
                                 tapOutBtt.setVisibility(View.GONE);
                             }
@@ -423,18 +475,6 @@ public class MainScreenFragment extends Fragment {
 
                     }
                 });
-
-//                alertMessage("Successfully Tapped Out!");
-
-//                daysTappedIn += 1;
-//                someEventListener.someEvent(daysTappedIn);
-
-//                SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
-//                SharedPreferences.Editor editor = prefs.edit();
-//                userTappedIn = false;
-//                editor.putBoolean("userTappedIn", userTappedIn);
-//                editor.apply();
-//                tapOutBtt.setVisibility(View.GONE);
             }
             else {
                 alertMessage("Error");
@@ -454,37 +494,6 @@ public class MainScreenFragment extends Fragment {
                 });
         alertDialog.show();
     }
-
-//    private BroadcastReceiver br = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            updateGUI(intent); // or whatever method used to update your GUI fields
-//        }
-//    };
-//
-//    private void updateGUI(Intent intent) {
-//        if (intent.getExtras() != null) {
-//            long millisUntilFinished = intent.getLongExtra("countdown", 0);
-//            boolean timerFinished = intent.getBooleanExtra("timer finish", false);
-//
-//            long hour = TimeUnit.MILLISECONDS.toHours(millisUntilFinished);
-//            long minute = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished));
-//            long second = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished));
-//
-//            String hms = String.format("Tapping Out in: " + "%02d:%02d:%02d", hour, minute, second);
-//            countDownTimerText.setText(hms);//set text
-//
-//            if(timerFinished){
-//                countdownTimerLayout.removeView(countDownTimerText);
-//                tapOutBtt.setVisibility(View.VISIBLE);
-//                getActivity().stopService(new Intent(getContext(), BroadcastService.class));
-//                Log.i(TAG, "Stopped service");
-//            }
-//            else {
-//                tapOutBtt.setVisibility(View.GONE);
-//            }
-//        }
-//    }
 
     public void startTimer(){
         mTimeLeftInMillis = mTimeLeftInMillis - (System.currentTimeMillis() - timeUserTappedIn);
@@ -512,6 +521,30 @@ public class MainScreenFragment extends Fragment {
             }
         };
         cdt.start();
+    }
+
+    public void loadHashMap(){
+        File file = new File(getActivity().getDir("data", MODE_PRIVATE), "map");
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+            campusAttendanceDaysCheck = (HashMap<String, Boolean>) inputStream.readObject();
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void saveHashMap(){
+        File file = new File(getActivity().getDir("data", MODE_PRIVATE), "map");
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+            outputStream.writeObject(campusAttendanceDaysCheck);
+            outputStream.flush();
+            outputStream.close();
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
