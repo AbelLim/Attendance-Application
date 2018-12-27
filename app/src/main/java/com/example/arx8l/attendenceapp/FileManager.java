@@ -22,9 +22,9 @@ public class FileManager {
     public void uploadFile(String filePath, OnFileUploadListener listener)
     {
         listener.OnStart();
-        Uri mFile = Uri.fromFile(new File(filePath));
-        String[] filename = filePath.split("/");
-        StorageReference fileRef = mStorageReference.child("images/" + filename[-1]);
+        Uri mFile = Uri.fromFile(new File("TEST.docx"));
+        //String[] filename = filePath.split("/");
+        StorageReference fileRef = mStorageReference.child("images/TEST.docx");
 
         fileRef.putFile(mFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
