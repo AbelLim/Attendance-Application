@@ -10,17 +10,19 @@
         android:layout_height="match_parent"
         android:background="#BAFFFFFF"
         />
+
     <EditText
         android:id="@+id/et_cer"
-        android:paddingLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="Enter Certificate NO."/>
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:hint="Enter Certificate NO."
+        android:paddingLeft="16dp"
+        android:singleLine="true"
+        android:textAlignment="center" />
 
     <RelativeLayout
         android:layout_marginTop="16dp"
@@ -69,14 +71,14 @@
             android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="start date"/>
+            android:text="Start Date"/>
         <TextView
             android:id="@+id/tv_start"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:paddingRight="8dp"
-            android:hint="select here"
+            android:hint="Select Here"
             android:layout_height="match_parent"
             android:background="@null"
             />
@@ -98,31 +100,33 @@
             android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="end date"/>
+            android:text="End Date"/>
         <TextView
             android:id="@+id/tv_end"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:paddingRight="8dp"
-            android:hint="select here"
+            android:hint="Select Here"
             android:layout_height="match_parent"
             android:background="@null"
             />
     </LinearLayout>
+
     <EditText
         android:id="@+id/et_reason"
-        android:layout_below="@id/ll_enddate"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
-        android:gravity="start"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:hint="YOUR REASON"/>
+        android:layout_below="@id/ll_enddate"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:gravity="start"
+        android:hint="Your Reason ..."
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textStyle="italic" />
     <Button
         android:id="@+id/bt_submit"
         android:layout_marginLeft="27dp"
