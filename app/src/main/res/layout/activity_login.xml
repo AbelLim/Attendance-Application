@@ -64,7 +64,7 @@
             android:textColor="#333"
             android:singleLine="true"
             android:textColorHint="#999"
-            android:hint="ENTER JCU ID"/>
+            android:hint="Enter JCU ID"/>
     </LinearLayout>
     <LinearLayout
         android:layout_marginLeft="20dp"
