@@ -5,10 +5,40 @@
     android:layout_height="match_parent"
     tools:context="com.example.arx8l.attendenceapp.CampusAttendanceFragment">
 
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="24dp"
+        android:layout_height="22dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="184dp"
+        android:layout_marginBottom="14dp" />
+
+    <Button
+        android:id="@+id/campus_left_button"
+        android:layout_width="42dp"
+        android:layout_height="21dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="138dp"
+        android:layout_marginBottom="15dp"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/campus_right_button"
+        android:layout_width="42dp"
+        android:layout_height="21dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="219dp"
+        android:layout_marginBottom="14dp"
+        android:text="Button" />
+
     <com.loopeer.shadow.ShadowView
         android:id="@+id/percentage_class"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/button3"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"

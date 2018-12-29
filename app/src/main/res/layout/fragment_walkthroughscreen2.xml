@@ -9,6 +9,24 @@
     <HorizontalScrollView
         android:layout_width="30dp"
         android:layout_height="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="179dp"
+        android:layout_marginBottom="50dp"
+        android:background="@color/round_corner_progress_bar_progress_default"
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="132dp"
+        tools:layout_editor_absoluteY="461dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
+        android:layout_width="30dp"
+        android:layout_height="15dp"
         android:background="@color/round_corner_progress_bar_progress_default"
         android:visibility="visible"
         tools:layout_editor_absoluteX="219dp"
@@ -53,8 +71,8 @@
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="97dp"
-        android:layout_marginBottom="180dp"
+        android:layout_marginEnd="93dp"
+        android:layout_marginBottom="157dp"
         android:text="Countdown Timer"
         android:textAlignment="center"
         android:textSize="30sp"
@@ -69,13 +87,49 @@
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="404dp"
-        android:layout_marginEnd="19dp"
+        android:layout_marginTop="367dp"
+        android:layout_marginEnd="28dp"
         android:text="  Tap in and out on time so you won't miss out on your attendance."
         android:textAlignment="center"
         android:textSize="18sp"
         tools:layout_editor_absoluteX="25dp"
         tools:layout_editor_absoluteY="373dp" />
+
+    <HorizontalScrollView
+        android:layout_width="30dp"
+        android:layout_height="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="229dp"
+        android:layout_marginBottom="48dp"
+        android:background="@color/round_corner_progress_bar_progress_default"
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="132dp"
+        tools:layout_editor_absoluteY="461dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
+        android:layout_width="30dp"
+        android:layout_height="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="132dp"
+        android:layout_marginBottom="48dp"
+        android:background="@color/round_corner_progress_bar_progress_default"
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="132dp"
+        tools:layout_editor_absoluteY="461dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </HorizontalScrollView>
 
     <ImageView
         android:id="@+id/imageView"
@@ -83,8 +137,8 @@
         android:layout_height="214dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="71dp"
-        android:layout_marginBottom="314dp"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="266dp"
         app:srcCompat="@drawable/timer"
         tools:layout_editor_absoluteX="78dp"
         tools:layout_editor_absoluteY="28dp" />
