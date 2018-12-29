@@ -64,7 +64,7 @@
             android:textColor="#333"
             android:singleLine="true"
             android:textColorHint="#999"
-            android:hint="ENTER JCU ID"/>
+            android:hint="Enter JCU ID"/>
     </LinearLayout>
     <LinearLayout
         android:layout_marginLeft="20dp"
@@ -96,15 +96,17 @@
             android:textColorHint="#999"
             android:hint="Password"/>
     </LinearLayout>
-    <Button
-        android:id="@+id/bt_login"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_width="match_parent"
-        android:text="LOGIN"
-        android:textColor="#ffffff"
-        android:background="@drawable/corner_loginbt"
-        android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/bt_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/corner_loginbt"
+            android:text="LOGIN"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
     </LinearLayout>
 </RelativeLayout>
