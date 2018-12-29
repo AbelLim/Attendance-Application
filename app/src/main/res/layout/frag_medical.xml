@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
    >
-
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#BAFFFFFF"
         />
+
     <EditText
         android:id="@+id/et_cer"
-        android:paddingLeft="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="27dp"
         android:layout_marginTop="16dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:hint="Enter Certificate NO."
+        android:paddingLeft="16dp"
+        android:singleLine="true"
+        android:textAlignment="center" />
+
+    <RelativeLayout
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/et_cer"
+        android:id="@+id/ll_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="27dp"
         android:layout_marginRight="27dp"
         android:background="@drawable/et_bg"
-        android:singleLine="true"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="Enter Certificate NO."/>
-    <TextView
-        android:id="@+id/et_photo"
-        android:gravity="center_vertical"
-        android:layout_below="@id/et_cer"
-        android:paddingLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Upload Photo"/>
+        >
+
+        <TextView
+            android:id="@+id/tv_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:singleLine="true"
+            android:text="Upload Photo" />
+
+        <ImageView
+            android:layout_centerVertical="true"
+            android:id="@+id/iv_img"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+
 
     <LinearLayout
         android:id="@+id/ll_date"
-        android:layout_below="@id/et_photo"
+        android:layout_below="@id/ll_photo"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="16dp"
@@ -52,31 +71,62 @@
             android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Peroid of Absence"/>
+            android:text="Start Date"/>
         <TextView
+            android:id="@+id/tv_start"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:paddingRight="8dp"
-            android:hint="select here"
+            android:hint="Select Here"
             android:layout_height="match_parent"
             android:background="@null"
             />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_enddate"
+        android:layout_below="@id/ll_date"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="27dp"
+        android:background="@drawable/et_bg"
+        android:layout_marginRight="27dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_marginLeft="16dp"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Date"/>
+        <TextView
+            android:id="@+id/tv_end"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:paddingRight="8dp"
+            android:hint="Select Here"
+            android:layout_height="match_parent"
+            android:background="@null"
+            />
+    </LinearLayout>
+
     <EditText
         android:id="@+id/et_reason"
-        android:layout_below="@id/ll_date"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
-        android:gravity="start"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:hint="YOUR REASON"/>
-
+        android:layout_below="@id/ll_enddate"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:gravity="start"
+        android:hint="Your Reason ..."
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textStyle="italic" />
     <Button
         android:id="@+id/bt_submit"
         android:layout_marginLeft="27dp"
