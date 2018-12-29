@@ -12,26 +12,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FileManager fm = new FileManager();
-        fm.uploadFile("", new FileManager.OnFileUploadListener() {
-            @Override
-            public void OnStart() {
-                Toast.makeText(MainActivity.this, "Uploading...", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void OnSuccess() {
-                Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void OnFailure() {
-                //Toast.makeText(MainActivity.this, "Failure", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        //Intent intent = new Intent(this, LoginActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
 
