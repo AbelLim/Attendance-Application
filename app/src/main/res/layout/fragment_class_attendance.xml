@@ -9,6 +9,7 @@
         android:id="@+id/percentage_class"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/button3"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
@@ -43,20 +44,6 @@
                 app:progressbar_color="#8cc63e"
                 app:progressbar_width="12dp" />
 
-            <TextView
-                android:id="@+id/campus_check_percentage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginStart="103dp"
-                android:layout_marginTop="87dp"
-                android:layout_marginBottom="258dp"
-                android:text="90%"
-                android:textColor="#504d4e"
-                android:textSize="62sp"
-                android:textStyle="bold" />
-
 
             <TextView
                 android:id="@+id/textView"
@@ -80,6 +67,20 @@
                 android:layout_marginBottom="114dp"
                 android:text="Your attendance meets the ICA Requirements"
                 android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/class_check_percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="103dp"
+                android:layout_marginTop="87dp"
+                android:layout_marginBottom="258dp"
+                android:text="90%"
+                android:textColor="#504d4e"
+                android:textSize="62sp"
+                android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/info_1"

@@ -77,17 +77,17 @@ public class CampusAttendanceFragment extends Fragment {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_campus_attendance, container, false);
 
-        myFragmentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
-                classAttendanceFragment.setArguments(getArguments());
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
-                fragmentTransaction.commit();
-            }
-        });
+//        myFragmentView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+//                classAttendanceFragment.setArguments(getArguments());
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
+//                fragmentTransaction.commit();
+//            }
+//        });
 
         campusCheckCircleBar = myFragmentView.findViewById(R.id.campus_check_circle_bar);
         campusCheckPercentage = myFragmentView.findViewById(R.id.campus_check_percentage);

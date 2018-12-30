@@ -236,18 +236,21 @@ public class MainScreenFragment extends Fragment{
         countDownTimerText = new TextView(getContext());
         countDownTimerText.setTextSize(24);
 
-//        classAtt = myFragmentView.findViewById(R.id.class_att);
-//        classAtt.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-//                fragmentTransaction.replace(R.id.main_frag, classAttendanceFragment, "");
-//                fragmentTransaction.commit();
-//            }
-//        });
+        classAtt = myFragmentView.findViewById(R.id.class_att);
+        classAtt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
+                fragmentTransaction.replace(R.id.main_frag, classAttendanceFragment, "");
+                fragmentTransaction.commit();
+            }
+        });
+
+
+
 
 //        String text = "Tapping Out in:";
 //        SpannableString ss = new SpannableString(text);
