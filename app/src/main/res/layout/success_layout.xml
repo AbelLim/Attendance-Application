@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    android:backgroundTint="#99FFFFFF"
+    android:backgroundTint="#BAFFFFFF"
     android:backgroundTintMode="src_over"
     tools:context=".SuccessPage">
 
@@ -18,11 +18,11 @@
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.36"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.791"
+        app:layout_constraintVertical_bias="0.85"
         tools:textColor="#000000" />
 
     <ImageView
@@ -31,7 +31,8 @@
         android:layout_height="240dp"
         app:srcCompat="@drawable/sign"
         tools:layout_editor_absoluteX="106dp"
-        tools:layout_editor_absoluteY="87dp" />
+        tools:layout_editor_absoluteY="117dp"
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textView"
@@ -42,6 +43,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
         tools:layout_editor_absoluteX="143dp"
-        tools:textColor="#000000" />
+        tools:textColor="#000000"
+        tools:ignore="MissingConstraints" />
 
 </android.support.constraint.ConstraintLayout>
