@@ -10,10 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,6 +40,8 @@ public class ClassAttendanceFragment extends Fragment {
     CircularProgressBar classCheckCircleBar;
     TextView classCheckPercentage;
     TextView classStatus;
+    ImageView info1;
+
 
     public ClassAttendanceFragment() {
         // Required empty public constructor
@@ -78,17 +80,19 @@ public class ClassAttendanceFragment extends Fragment {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_class_attendance, container, false);
 
-        myFragmentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
-                campusAttendanceFragment.setArguments(getArguments());
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
-                fragmentTransaction.commit();
-            }
-        });
+        info1 = myFragmentView.findViewById(R.id.info_1);
+
+//        myFragmentView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
+//                campusAttendanceFragment.setArguments(getArguments());
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
+//                fragmentTransaction.commit();
+//            }
+//        });
 
         classCheckCircleBar = myFragmentView.findViewById(R.id.class_check_circle_bar);
         classCheckPercentage = myFragmentView.findViewById(R.id.class_check_percentage);

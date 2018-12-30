@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 
 /**
@@ -99,6 +100,54 @@ public class CheckMyAttendanceFragment extends Fragment{
                 fragmentTransaction.commit();
                 break;
         }
+
+        myFragmentView.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
+            public void onSwipeLeft() {
+                boolean currentScreenIsClass = true;
+                if(currentScreenIsClass){
+                    CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
+                    campusAttendanceFragment.setArguments(getArguments());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
+                    fragmentTransaction.commit();
+                }
+                else {
+                    ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                    classAttendanceFragment.setArguments(getArguments());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
+                    fragmentTransaction.commit();
+                }
+                Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
+
+            }
+                //put if-else here campus to class
+
+            public void onSwipeRight() {
+                boolean currentScreenIsCampus = true;
+                if(currentScreenIsCampus){
+                    ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                    classAttendanceFragment.setArguments(getArguments());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
+                    fragmentTransaction.commit();
+                }
+                else {
+                    CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
+                    campusAttendanceFragment.setArguments(getArguments());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
+                    fragmentTransaction.commit();
+                }
+                Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
+
+            }
+
+        });
 
         return myFragmentView;
     }
