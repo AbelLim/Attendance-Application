@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/jcu_background"
    >
 
 
@@ -10,30 +13,34 @@
         android:layout_height="match_parent"
         android:background="#BAFFFFFF"
         />
+
     <EditText
         android:id="@+id/et_cer"
-        android:paddingLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="Enter Certificate NO."/>
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:hint="Enter Certificate No."
+        android:paddingLeft="16dp"
+        android:singleLine="true"
+        android:textAlignment="center" />
+
     <TextView
         android:id="@+id/et_photo"
-        android:gravity="center_vertical"
-        android:layout_below="@id/et_cer"
-        android:paddingLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Upload Photo"/>
+        android:layout_below="@id/et_cer"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="26dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:singleLine="true"
+        android:text="Upload Photo"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:id="@+id/ll_date"
@@ -47,12 +54,12 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_marginLeft="16dp"
-            android:layout_gravity="center"
-            android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Peroid of Absence"/>
+            android:layout_gravity="center"
+            android:layout_marginLeft="16dp"
+            android:gravity="center_vertical"
+            android:text="Peroid of Absence" />
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -63,29 +70,32 @@
             android:background="@null"
             />
     </LinearLayout>
+
     <EditText
         android:id="@+id/et_reason"
-        android:layout_below="@id/ll_date"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
-        android:gravity="start"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:hint="YOUR REASON"/>
+        android:layout_below="@id/ll_date"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:gravity="start"
+        android:hint="Your Reason..."
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textAlignment="center" />
 
     <Button
         android:id="@+id/bt_submit"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:textColor="@color/white"
-        android:layout_marginTop="16dp"
-        android:layout_below="@+id/et_reason"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/et_reason"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="66dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/corner_submit"
         android:text="Submit"
-        android:background="@drawable/corner_submit"/>
+        android:textColor="@color/white" />
+
 </RelativeLayout>
