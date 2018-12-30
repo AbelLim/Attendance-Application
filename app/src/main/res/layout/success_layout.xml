@@ -15,7 +15,7 @@
         android:layout_height="98dp"
         android:text="You have successfully tapped into your class!"
         android:textAlignment="center"
-        android:textSize="22sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.52"
@@ -30,20 +30,21 @@
         android:layout_width="172dp"
         android:layout_height="240dp"
         app:srcCompat="@drawable/sign"
-        tools:layout_editor_absoluteX="106dp"
-        tools:layout_editor_absoluteY="117dp"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="115dp"
+        tools:layout_editor_absoluteY="120dp" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="135dp"
         android:layout_height="61dp"
+        android:layout_marginBottom="20dp"
         android:text="Success"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="143dp"
-        tools:textColor="#000000"
-        tools:ignore="MissingConstraints" />
+        tools:textColor="#000000" />
 
 </android.support.constraint.ConstraintLayout>
