@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,6 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.io.File;
@@ -58,6 +61,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
 
@@ -69,7 +73,7 @@ import static android.content.Context.MODE_PRIVATE;
  * Use the {@link MainScreenFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainScreenFragment extends Fragment{
+public class MainScreenFragment extends Fragment implements LocationListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -96,6 +100,7 @@ public class MainScreenFragment extends Fragment{
     CountDownTimer cdt;
     AttendanceManager attendanceManager;
     User u;
+    Location userLocation;
 
     private long mTimeLeftInMillis = 30000;
     private long timeUserTappedIn;
@@ -111,6 +116,11 @@ public class MainScreenFragment extends Fragment{
     private ArrayList<Class> classes;
     private Class cp3408L;
     private Class cp3408P;
+
+    private LatLng ne = new LatLng(1.316537, 103.876634);
+    private LatLng sw = new LatLng(1.315058, 103.875267);
+    private LatLngBounds JCU = new LatLngBounds(sw, ne);
+    private LocationManager locationManager;
 
 
     public MainScreenFragment() {
@@ -157,6 +167,16 @@ public class MainScreenFragment extends Fragment{
 
         classes.add(cp3408L);
         classes.add(cp3408P);
+
+        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 3);
+        }
+        else {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            userLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
 
         loadHashMap();
 
@@ -281,22 +301,50 @@ public class MainScreenFragment extends Fragment{
         }
     }
 
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
         switch (requestCode) {
             case 1: {
-                Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                startActivityForResult(getQrCodeResultIntent, 1);
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                    startActivityForResult(getQrCodeResultIntent, 1);
+                }
+                break;
             }
-            case 2:
-                Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                startActivityForResult(getQrCodeResultIntent, 2);
+            case 2: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                    startActivityForResult(getQrCodeResultIntent, 2);
+                }
+                break;
+            }
+            case 3: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                        userLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    }
+                } else {
+                    AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+                    alertDialog.setTitle("Required Permission");
+                    alertDialog.setMessage("The app requires access to user location to run");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    getActivity().finishAndRemoveTask();
+                                }
+                            });
+                    alertDialog.show();
+                }
+                break;
+            }
         }
     }
 
@@ -341,6 +389,26 @@ public class MainScreenFragment extends Fragment{
     }
 
     @Override
+    public void onLocationChanged(Location location) {
+        userLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -350,114 +418,106 @@ public class MainScreenFragment extends Fragment{
         currentDateString = currentDateTime.format(dateFormatter);
         currentTimeString = currentDateTime.format(timeFormatter);
 
-        if (requestCode == 1 && resultCode == 0 && data != null) {
-            String scanResult = data.getStringExtra("cc");
+        if (JCU.contains(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))) {
+            if (requestCode == 1 && resultCode == 0 && data != null) {
+                String scanResult = data.getStringExtra("cc");
 
-            if (scanResult.equals("JCU QR Code Attendance")) {
-                if (timerIsRunning) {
-                    alertMessage("Not Yet");
-                }
-                else if (tapOutBtt.getVisibility() == View.VISIBLE){
-                    tapOutForCampus(scanResult);
-                }
-                else if (!campusAttendanceDaysCheck.containsKey(currentDateString)) {
-                    alertMessage("Date error");
-                }
-                else if (campusAttendanceDaysCheck.get(currentDateString) != null) {
-                    if (campusAttendanceDaysCheck.get(currentDateString)) {
-                        alertMessage("Today you have successfully tapped in and tapped out!");
-                    }
-                    else {
+                if (scanResult.equals("JCU QR Code Attendance")) {
+                    if (timerIsRunning) {
+                        alertMessage("Not Yet");
+                    } else if (tapOutBtt.getVisibility() == View.VISIBLE) {
+                        tapOutForCampus(scanResult);
+                    } else if (!campusAttendanceDaysCheck.containsKey(currentDateString)) {
                         alertMessage("Date error");
-                    }
-                }
-                else if (campusAttendanceDaysCheck.get(currentDateString) == null) {
-                    attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
-                        @Override
-                        public void OnStart() {
-
+                    } else if (campusAttendanceDaysCheck.get(currentDateString) != null) {
+                        if (campusAttendanceDaysCheck.get(currentDateString)) {
+                            alertMessage("Today you have successfully tapped in and tapped out!");
+                        } else {
+                            alertMessage("Date error");
                         }
+                    } else if (campusAttendanceDaysCheck.get(currentDateString) == null) {
+                        attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
+                            @Override
+                            public void OnStart() {
 
-                        @Override
-                        public void OnSuccess() {
-                            attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
-                                @Override
-                                public void OnStart() {
+                            }
 
-                                }
+                            @Override
+                            public void OnSuccess() {
+                                attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                                    @Override
+                                    public void OnStart() {
 
-                                @Override
-                                public void OnSuccess(User user) {
-                                    u = user;
-                                    alertMessage("Successfully Tapped In!");
-                                    countdownTimerLayout.addView(countDownTimerText);
-                                    Date date = new Date();
-                                    try {
-                                        date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
                                     }
-                                    timeUserTappedIn = date.getTime();
-                                    userTappedIn = u.getTappedIn();
-                                    startTimer();
 
-                                }
+                                    @Override
+                                    public void OnSuccess(User user) {
+                                        u = user;
+                                        alertMessage("Successfully Tapped In!");
+                                        countdownTimerLayout.addView(countDownTimerText);
+                                        Date date = new Date();
+                                        try {
+                                            date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        timeUserTappedIn = date.getTime();
+                                        userTappedIn = u.getTappedIn();
+                                        startTimer();
 
-                                @Override
-                                public void OnFailure() {
+                                    }
 
-                                }
-                            });
-                        }
+                                    @Override
+                                    public void OnFailure() {
 
-                        @Override
-                        public void OnFailure() {
+                                    }
+                                });
+                            }
 
-                        }
-                    });
-                }
-                else {
-                    alertMessage("Error");
-                }
-            }
-            else if (classAttendanceDaysCheck.containsKey(scanResult)) {
-                String classID = scanResult;
-                Class checkingClass = getCheckingClass(classID);
-                HashMap<String, Boolean> attendanceDaysCheck = classAttendanceDaysCheck.get(classID);
+                            @Override
+                            public void OnFailure() {
 
-                if (attendanceDaysCheck.containsKey(currentDateString) &&
-                        LocalTime.parse(currentTimeString).isAfter(LocalTime.parse(checkingClass.getStartTime())) &&
-                        LocalTime.parse(currentTimeString).
-                                isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
-
-                    if (attendanceDaysCheck.get(currentDateString) == null) {
-                        attendanceDaysCheck.put(currentDateString, true);
-                        alertMessage("Successfully tapped in for " + checkingClass.getName());
+                            }
+                        });
+                    } else {
+                        alertMessage("Error");
                     }
-                    else if (attendanceDaysCheck.get(currentDateString)){
+                } else if (classAttendanceDaysCheck.containsKey(scanResult)) {
+                    String classID = scanResult;
+                    Class checkingClass = getCheckingClass(classID);
+                    HashMap<String, Boolean> attendanceDaysCheck = classAttendanceDaysCheck.get(classID);
+
+                    if (attendanceDaysCheck.containsKey(currentDateString) &&
+                            LocalTime.parse(currentTimeString).isAfter(LocalTime.parse(checkingClass.getStartTime())) &&
+                            LocalTime.parse(currentTimeString).
+                                    isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
+
+                        if (attendanceDaysCheck.get(currentDateString) == null) {
+                            attendanceDaysCheck.put(currentDateString, true);
+                            alertMessage("Successfully tapped in for " + checkingClass.getName());
+                        } else if (attendanceDaysCheck.get(currentDateString)) {
+                            alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                        } else {
+                            alertMessage("Date error");
+                        }
+                        saveHashMap();
+                        someEventListener.someEvent();
+                    } else if (attendanceDaysCheck.containsKey(currentDateString)
+                            && attendanceDaysCheck.get(currentDateString)) {
                         alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                    } else {
+                        alertMessage("Date-Time error");
                     }
-                    else {
-                        alertMessage("Date error");
-                    }
-                    saveHashMap();
-                    someEventListener.someEvent();
+                } else {
+                    alertMessage("QR code error");
                 }
-                else if (attendanceDaysCheck.containsKey(currentDateString)
-                        && attendanceDaysCheck.get(currentDateString)){
-                    alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
-                }
-                else {
-                    alertMessage("Date-Time error");
-                }
-            }
-            else {
-                alertMessage("QR code error");
+            } else if (requestCode == 2 && resultCode == 0 && data != null) {
+                String result = data.getStringExtra("cc");
+                tapOutForCampus(result);
             }
         }
-        else if (requestCode == 2 && resultCode == 0 && data != null) {
-            String result = data.getStringExtra("cc");
-            tapOutForCampus(result);
+        else {
+            alertMessage("You have to be inside JCU to tap in");
         }
     }
 
@@ -600,27 +660,17 @@ public class MainScreenFragment extends Fragment{
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        locationManager.removeUpdates(this);
     }
 }
