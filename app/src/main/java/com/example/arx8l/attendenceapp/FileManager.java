@@ -9,8 +9,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-
 public class FileManager {
     private StorageReference mStorageReference;
 
@@ -19,14 +17,12 @@ public class FileManager {
         mStorageReference = FirebaseStorage.getInstance().getReference();
     }
 
-    public void uploadFile(String filePath, OnFileUploadListener listener)
+    public void uploadFile(Uri file, String fileID, OnFileUploadListener listener)
     {
         listener.OnStart();
-        Uri mFile = Uri.fromFile(new File("TEST.docx"));
-        //String[] filename = filePath.split("/");
-        StorageReference fileRef = mStorageReference.child("images/TEST.docx");
+        StorageReference fileRef = mStorageReference.child("leave application/" + fileID);
 
-        fileRef.putFile(mFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        fileRef.putFile(file).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 listener.OnSuccess();
