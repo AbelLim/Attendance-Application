@@ -12,13 +12,12 @@ import android.widget.Toast;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
-    private FileManager fm = new FileManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
