@@ -23,6 +23,10 @@ android {
         exclude 'META-INF/proguard/androidx-annotations.pro'
     }
     sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/'] } }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
@@ -40,5 +44,7 @@ dependencies {
     implementation 'com.mikhaellopez:circularprogressbar:1.0.0'
     implementation 'com.loopeer.lib:shadow:0.0.4-beta3'
     implementation 'com.akexorcist:RoundCornerProgressBar:2.0.3'
-
+    implementation 'com.google.guava:guava:27.0.1-jre'
+    implementation 'com.google.firebase:firebase-storage:16.0.1'
+    implementation 'com.google.firebase:firebase-auth:16.0.1'
 }

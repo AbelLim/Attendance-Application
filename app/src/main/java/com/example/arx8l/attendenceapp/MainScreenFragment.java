@@ -46,6 +46,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,7 +92,6 @@ public class MainScreenFragment extends Fragment{
     ImageView tapInTapOut;
     CircularProgressBar campusCircleProgressBar;
     CircularProgressBar classCircleProgressBar;
-    LocalDate currentDate;
 
     CountDownTimer cdt;
     AttendanceManager attendanceManager;
@@ -104,7 +105,12 @@ public class MainScreenFragment extends Fragment{
     private int campusAttendance;
     private String userId = "12345678";
     private HashMap<String, Boolean> campusAttendanceDaysCheck;
+    private HashMap<String, HashMap<String, Boolean>> classAttendanceDaysCheck;
     private String currentDateString;
+    private String currentTimeString;
+    private ArrayList<Class> classes;
+    private Class cp3408L;
+    private Class cp3408P;
 
 
     public MainScreenFragment() {
@@ -144,41 +150,15 @@ public class MainScreenFragment extends Fragment{
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
-//        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", MODE_PRIVATE);
+        classes = new ArrayList<>();
 
-//        userTappedIn = prefs.getBoolean("userTappedIn", false);
-//        timeUserTappedIn = prefs.getLong("timeUserTappedIn", 0);
+        cp3408L = new Class("CP3408-Lecture", "14:00", "15:50");
+        cp3408P = new Class("CP3408-Practical", "13:00", "14:50");
 
-        currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        currentDateString = currentDate.format(formatter);
+        classes.add(cp3408L);
+        classes.add(cp3408P);
 
         loadHashMap();
-
-        System.out.println("MainScreenFragment >>> ");
-//        for (String name: campusAttendanceDaysCheck.keySet()){
-//            String key = name;
-//            Boolean value = campusAttendanceDaysCheck.get(name);
-//            System.out.println(key + ": " + value);
-//        }
-
-        ArrayList<String> sortedKeys =
-                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
-        Collections.sort(sortedKeys, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-
-        for (String x : sortedKeys)
-            System.out.println(x + ": " + campusAttendanceDaysCheck.get(x));
-
 
         if (getArguments() != null) {
             classAttendance = getArguments().getInt("class attendance");
@@ -207,14 +187,8 @@ public class MainScreenFragment extends Fragment{
                     requestPermissions( new String[]{Manifest.permission.CAMERA}, 1);
                 }
                 else {
-                    if (tapOutBtt.getVisibility() == View.VISIBLE){
-                        Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                        startActivityForResult(getQrCodeResultIntent, 2);
-                    }
-                    else {
-                        Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
-                        startActivityForResult(getQrCodeResultIntent, 1);
-                    }
+                    Intent getQrCodeResultIntent = new Intent(getContext(), QRCodeScanner.class);
+                    startActivityForResult(getQrCodeResultIntent, 1);
                 }
             }
         });
@@ -254,6 +228,7 @@ public class MainScreenFragment extends Fragment{
 //        ForegroundColorSpan fcsRed = new ForegroundColorSpan(Color.RED);
 //        ss.setSpan(fcsRed, 8, 11, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 //        tappingOut.setText(ss);
+
         tapOutBtt.setVisibility(View.GONE);
 
         attendanceManager = new AttendanceManager();
@@ -327,7 +302,7 @@ public class MainScreenFragment extends Fragment{
 
 
     public interface OnSomeEventListener {
-        public void someEvent(HashMap<String, Boolean> campusDaysCheck);
+        public void someEvent();
     }
 
     OnSomeEventListener someEventListener;
@@ -367,72 +342,128 @@ public class MainScreenFragment extends Fragment{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (requestCode == 1 && resultCode == 0 && data != null) {
-            String result = data.getStringExtra("cc");
 
-            if (result.equals("JCU QR Code Attendance") && timerIsRunning){
-                alertMessage("Not Yet");
-            }
-            else if (result.equals("JCU QR Code Attendance") && !campusAttendanceDaysCheck.containsKey(currentDateString)){
-                alertMessage("Error");
-            }
-            else if (result.equals("JCU QR Code Attendance") && campusAttendanceDaysCheck.get(currentDateString) != null){
-                if (campusAttendanceDaysCheck.get(currentDateString)){
-                    alertMessage("Today you have successfully tapped in and tapped out!");
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        currentDateString = currentDateTime.format(dateFormatter);
+        currentTimeString = currentDateTime.format(timeFormatter);
+
+        if (requestCode == 1 && resultCode == 0 && data != null) {
+            String scanResult = data.getStringExtra("cc");
+
+            if (scanResult.equals("JCU QR Code Attendance")) {
+                if (timerIsRunning) {
+                    alertMessage("Not Yet");
+                }
+                else if (tapOutBtt.getVisibility() == View.VISIBLE){
+                    tapOutForCampus(scanResult);
+                }
+                else if (!campusAttendanceDaysCheck.containsKey(currentDateString)) {
+                    alertMessage("Date error");
+                }
+                else if (campusAttendanceDaysCheck.get(currentDateString) != null) {
+                    if (campusAttendanceDaysCheck.get(currentDateString)) {
+                        alertMessage("Today you have successfully tapped in and tapped out!");
+                    }
+                    else {
+                        alertMessage("Date error");
+                    }
+                }
+                else if (campusAttendanceDaysCheck.get(currentDateString) == null) {
+                    attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
+                        @Override
+                        public void OnStart() {
+
+                        }
+
+                        @Override
+                        public void OnSuccess() {
+                            attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                                @Override
+                                public void OnStart() {
+
+                                }
+
+                                @Override
+                                public void OnSuccess(User user) {
+                                    u = user;
+                                    alertMessage("Successfully Tapped In!");
+                                    countdownTimerLayout.addView(countDownTimerText);
+                                    Date date = new Date();
+                                    try {
+                                        date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    timeUserTappedIn = date.getTime();
+                                    userTappedIn = u.getTappedIn();
+                                    startTimer();
+
+                                }
+
+                                @Override
+                                public void OnFailure() {
+
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void OnFailure() {
+
+                        }
+                    });
+                }
+                else {
+                    alertMessage("Error");
                 }
             }
-            else if (result.equals("JCU QR Code Attendance") && campusAttendanceDaysCheck.get(currentDateString) == null) {
-                attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
-                    @Override
-                    public void OnStart() {
+            else if (classAttendanceDaysCheck.containsKey(scanResult)) {
+                String classID = scanResult;
+                Class checkingClass = getCheckingClass(classID);
+                HashMap<String, Boolean> attendanceDaysCheck = classAttendanceDaysCheck.get(classID);
 
+                if (attendanceDaysCheck.containsKey(currentDateString) &&
+                        LocalTime.parse(currentTimeString).isAfter(LocalTime.parse(checkingClass.getStartTime())) &&
+                        LocalTime.parse(currentTimeString).
+                                isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
+
+                    if (attendanceDaysCheck.get(currentDateString) == null) {
+                        attendanceDaysCheck.put(currentDateString, true);
+                        alertMessage("Successfully tapped in for " + checkingClass.getName());
                     }
-
-                    @Override
-                    public void OnSuccess() {
-                        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
-                            @Override
-                            public void OnStart() {
-
-                            }
-
-                            @Override
-                            public void OnSuccess(User user) {
-                                u = user;
-                                alertMessage("Successfully Tapped In!");
-                                countdownTimerLayout.addView(countDownTimerText);
-                                Date date = new Date();
-                                try {
-                                    date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                timeUserTappedIn = date.getTime();
-                                userTappedIn = u.getTappedIn();
-                                startTimer();
-
-                            }
-
-                            @Override
-                            public void OnFailure() {
-
-                            }
-                        });
+                    else if (attendanceDaysCheck.get(currentDateString)){
+                        alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
                     }
-
-                    @Override
-                    public void OnFailure() {
-
+                    else {
+                        alertMessage("Date error");
                     }
-                });
-
-            } else {
-                alertMessage("Error");
+                    saveHashMap();
+                    someEventListener.someEvent();
+                }
+                else if (attendanceDaysCheck.containsKey(currentDateString)
+                        && attendanceDaysCheck.get(currentDateString)){
+                    alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                }
+                else {
+                    alertMessage("Date-Time error");
+                }
+            }
+            else {
+                alertMessage("QR code error");
             }
         }
-        else if(requestCode == 2 && resultCode == 0 && data != null){
+        else if (requestCode == 2 && resultCode == 0 && data != null) {
             String result = data.getStringExtra("cc");
-            if (result.equals("JCU QR Code Attendance")) {
+            tapOutForCampus(result);
+        }
+    }
+
+    private void tapOutForCampus(String scanResult){
+        if (scanResult.equals("JCU QR Code Attendance")) {
+            if (campusAttendanceDaysCheck.get(currentDateString) == null) {
                 attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
                     @Override
                     public void OnStart() {
@@ -450,15 +481,13 @@ public class MainScreenFragment extends Fragment{
                             @Override
                             public void OnSuccess(User user) {
                                 u = user;
-                                alertMessage("Successfully Tapped Out!");
 
-                                if (campusAttendanceDaysCheck.get(currentDateString) == null){
-                                    campusAttendanceDaysCheck.put(currentDateString, true);
-                                }
+                                campusAttendanceDaysCheck.put(currentDateString, true);
+                                alertMessage("Successfully Tapped Out!");
 
                                 saveHashMap();
 
-                                someEventListener.someEvent(campusAttendanceDaysCheck);
+                                someEventListener.someEvent();
                                 userTappedIn = u.getTappedIn();
                                 tapOutBtt.setVisibility(View.GONE);
                             }
@@ -477,9 +506,23 @@ public class MainScreenFragment extends Fragment{
                 });
             }
             else {
-                alertMessage("Error");
+                alertMessage("Date error");
             }
         }
+        else {
+            alertMessage("QR code error");
+        }
+    }
+
+    private Class getCheckingClass(String classID){
+        Class checkingClass = new Class("", "", "");
+        for(Class c : classes){
+            if (c.getName().equals(classID))
+            {
+                checkingClass = c;
+            }
+        }
+        return checkingClass;
     }
 
     private void alertMessage(String message){
@@ -523,11 +566,19 @@ public class MainScreenFragment extends Fragment{
         cdt.start();
     }
 
+    public String getClassTapInEndTime(String startTime){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalTime lcStartTime = LocalTime.parse(startTime);
+        lcStartTime = lcStartTime.plusMinutes(15);
+        return lcStartTime.format(formatter);
+    }
+
     public void loadHashMap(){
         File file = new File(getActivity().getDir("data", MODE_PRIVATE), "map");
         try {
             ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
             campusAttendanceDaysCheck = (HashMap<String, Boolean>) inputStream.readObject();
+            classAttendanceDaysCheck = (HashMap<String, HashMap<String, Boolean>>) inputStream.readObject();
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -539,6 +590,7 @@ public class MainScreenFragment extends Fragment{
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
             outputStream.writeObject(campusAttendanceDaysCheck);
+            outputStream.writeObject(classAttendanceDaysCheck);
             outputStream.flush();
             outputStream.close();
         }
