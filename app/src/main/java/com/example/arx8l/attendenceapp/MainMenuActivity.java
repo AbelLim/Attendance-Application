@@ -592,10 +592,9 @@ public class MainMenuActivity extends AppCompatActivity implements
 
     public void sendEmail() {
         Intent data=new Intent(Intent.ACTION_SENDTO);
-        data.setData(Uri.parse("studentservices-singapore@jcu.edu.au"));
+        data.setData(Uri.parse("mailto:studentservices-singapore@jcu.edu.au"));
         data.putExtra(Intent.EXTRA_SUBJECT, "");
         data.putExtra(Intent.EXTRA_TEXT, "");
         startActivity(data);
-
     }
 }
