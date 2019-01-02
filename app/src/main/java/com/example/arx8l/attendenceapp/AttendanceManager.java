@@ -122,6 +122,34 @@ public class AttendanceManager {
         });
     }
 
+    public void updateUser(String userID, User user)
+    {
+        final DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");
+        Query query = userDatabase.orderByChild("userID").equalTo(userID);
+        database.readData(query, new Database.OnGetDataListener() {
+            @Override
+            public void OnStart() {}
+
+            @Override
+            public void OnSuccess(DataSnapshot snapshot) {
+                userList.clear();
+                String key=null;
+                for(DataSnapshot userSnapshot : snapshot.getChildren())
+                {
+                    if(userList.isEmpty())
+                        key = userSnapshot.getKey();
+                    userList.add(user);
+                }
+                if(key!=null) {
+                    userDatabase.child(key).setValue(user);
+                }
+            }
+
+            @Override
+            public void OnFailure() {}
+        });
+    }
+
     public interface onGetUserListener
     {
         void OnStart();

@@ -2,6 +2,8 @@ package com.example.arx8l.attendenceapp;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User {
     private String userID;
@@ -10,6 +12,7 @@ public class User {
     private String password;
     private Boolean isTappedIn;
     private String tapInTime;
+    private Map<String, Boolean> campusAttendance = new HashMap<>();
 
     public User(){}
 
@@ -67,4 +70,18 @@ public class User {
     }
 
     public String getTapInTime(){return tapInTime;}
+
+    public Map<String, Boolean> getCampusAttendance() {
+        return campusAttendance;
+    }
+
+    public void setCampusAttendance(Map<String, Boolean> campusAttendance) {
+        this.campusAttendance = campusAttendance;
+    }
+
+    public void putCampusAttendance(String date, Boolean isPresent)
+    {
+        String mDate = date.replace('/','-');
+        campusAttendance.put(mDate, isPresent);
+    }
 }

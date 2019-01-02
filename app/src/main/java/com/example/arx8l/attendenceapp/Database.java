@@ -15,12 +15,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class Database
 {
-    private DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");;
-
     public Database(){}
 
     public void createUser(String userID, String name, String loginID, String password)
     {
+        DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("users");
         String hPassword = hashPassword(password);
         User user = new User(userID, name, loginID, hPassword);
         String key = userDatabase.push().getKey();
