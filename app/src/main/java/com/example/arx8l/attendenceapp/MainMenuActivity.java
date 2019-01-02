@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
@@ -13,9 +14,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -226,6 +232,13 @@ public class MainMenuActivity extends AppCompatActivity implements
         tapInTapOut = findViewById(R.id.tap_in_tap_out);
         medicalLeave = findViewById(R.id.medical_leave);
         settings = findViewById(R.id.settings);
+
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSettingPop();
+            }
+        });
 
         campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
         int totalAttendanceOfClasses = 0;
@@ -506,5 +519,83 @@ public class MainMenuActivity extends AppCompatActivity implements
             }
             upDateMainScreen();
         }
+    }
+
+    public void showSettingPop() {
+        PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.pop_setting, null);
+        RelativeLayout contacts = view.findViewById(R.id.layout_contacts);
+
+        contacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                showContactPop();
+            }
+        });
+
+        popupWindow.setContentView(view);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
+        popupWindow.setOutsideTouchable(true);
+        showUp(view, popupWindow);
+        popupWindow.update();
+    }
+
+    private void showUp(View v, PopupWindow window) {
+        v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int measuredHeight = v.getMeasuredHeight();
+        int[] location = new int[2];
+        settings.getLocationOnScreen(location);
+        window.showAtLocation(settings, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight);
+    }
+
+    private void showContactPop() {
+        PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.pop_contacts, null);
+        RelativeLayout phone = view.findViewById(R.id.layout_phone);
+        RelativeLayout email = view.findViewById(R.id.layout_email);
+
+        phone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                call("+65 6709 3888");
+            }
+        });
+
+        email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                sendEmail();
+            }
+        });
+
+        popupWindow.setContentView(view);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
+        popupWindow.setOutsideTouchable(true);
+        showUp(view, popupWindow);
+        popupWindow.update();
+    }
+
+    private void call(String phone) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    public void sendEmail() {
+        Intent data=new Intent(Intent.ACTION_SENDTO);
+        data.setData(Uri.parse("studentservices-singapore@jcu.edu.au"));
+        data.putExtra(Intent.EXTRA_SUBJECT, "");
+        data.putExtra(Intent.EXTRA_TEXT, "");
+        startActivity(data);
+
     }
 }
