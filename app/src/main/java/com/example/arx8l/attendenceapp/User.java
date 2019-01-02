@@ -9,6 +9,7 @@ public class User {
     private String loginID;
     private String password;
     private Boolean isTappedIn;
+
     private String tapInTime;
 
     public User(){}
