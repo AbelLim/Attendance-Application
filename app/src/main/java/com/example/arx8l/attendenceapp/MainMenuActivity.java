@@ -233,13 +233,6 @@ public class MainMenuActivity extends AppCompatActivity implements
         medicalLeave = findViewById(R.id.medical_leave);
         settings = findViewById(R.id.settings);
 
-        settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showSettingPop();
-            }
-        });
-
         campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
         int totalAttendanceOfClasses = 0;
         for (String key : classAttendanceDaysCheck.keySet()){
@@ -261,7 +254,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                showSettingPop();
             }
         });
 
@@ -521,27 +514,21 @@ public class MainMenuActivity extends AppCompatActivity implements
         }
     }
 
-    public void showSettingPop() {
-        PopupWindow popupWindow = new PopupWindow(this);
-        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 
-        View view = LayoutInflater.from(this).inflate(R.layout.pop_setting, null);
-        RelativeLayout contacts = view.findViewById(R.id.layout_contacts);
+    private void call(String phone) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
 
-        contacts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                popupWindow.dismiss();
-                showContactPop();
-            }
-        });
+    public void sendEmail() {
 
-        popupWindow.setContentView(view);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
-        popupWindow.setOutsideTouchable(true);
-        showUp(view, popupWindow);
-        popupWindow.update();
+
+        Intent data=new Intent(Intent.ACTION_SENDTO);
+        data.setData(Uri.parse("mailto:studentservices-singapore@jcu.edu.au"));
+        data.putExtra(Intent.EXTRA_SUBJECT, "");
+        data.putExtra(Intent.EXTRA_TEXT, "");
+        startActivity(data);
     }
 
     private void showUp(View v, PopupWindow window) {
@@ -551,6 +538,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         settings.getLocationOnScreen(location);
         window.showAtLocation(settings, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight);
     }
+
 
     private void showContactPop() {
         PopupWindow popupWindow = new PopupWindow(this);
@@ -584,19 +572,27 @@ public class MainMenuActivity extends AppCompatActivity implements
         popupWindow.update();
     }
 
-    private void call(String phone) {
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
 
-    public void sendEmail() {
+    public void showSettingPop() {
+        PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 
+        View view = LayoutInflater.from(this).inflate(R.layout.pop_setting, null);
+        RelativeLayout contacts = view.findViewById(R.id.layout_contacts);
 
-        Intent data=new Intent(Intent.ACTION_SENDTO);
-        data.setData(Uri.parse("mailto:studentservices-singapore@jcu.edu.au"));
-        data.putExtra(Intent.EXTRA_SUBJECT, "");
-        data.putExtra(Intent.EXTRA_TEXT, "");
-        startActivity(data);
+        contacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                showContactPop();
+            }
+        });
+
+        popupWindow.setContentView(view);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
+        popupWindow.setOutsideTouchable(true);
+        showUp(view, popupWindow);
+        popupWindow.update();
     }
 }
