@@ -4,20 +4,23 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link detailed_class_attendance.OnFragmentInteractionListener} interface
+ * {@link DetailClassAttendanceFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link detailed_class_attendance#newInstance} factory method to
+ * Use the {@link DetailClassAttendanceFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class detailed_class_attendance extends Fragment {
+public class DetailClassAttendanceFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -29,7 +32,7 @@ public class detailed_class_attendance extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public detailed_class_attendance() {
+    public DetailClassAttendanceFragment() {
         // Required empty public constructor
     }
 
@@ -39,11 +42,11 @@ public class detailed_class_attendance extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment detailed_class_attendance.
+     * @return A new instance of fragment DetailClassAttendanceFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static detailed_class_attendance newInstance(String param1, String param2) {
-        detailed_class_attendance fragment = new detailed_class_attendance();
+    public static DetailClassAttendanceFragment newInstance(String param1, String param2) {
+        DetailClassAttendanceFragment fragment = new DetailClassAttendanceFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -64,7 +67,27 @@ public class detailed_class_attendance extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_detailed_class_attendance, container, false);
+
+        View myFragmentView = inflater.inflate(R.layout.fragment_detailed_class_attendance,container, false);
+        ImageView info2;
+        info2 = myFragmentView.findViewById(R.id.info_2);
+        info2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.animator.card_flip_right_in,
+                        R.animator.card_flip_right_out,
+                        R.animator.card_flip_left_in,
+                        R.animator.card_flip_left_out);
+                fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "");
+                fragmentTransaction.commit();
+            }
+        });
+
+        return myFragmentView;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

@@ -47,4 +47,5 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-jre'
     implementation 'com.google.firebase:firebase-storage:16.0.1'
     implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.wajahatkarim3.easyflipviewpager:easyflipviewpager:1.0.0'
 }

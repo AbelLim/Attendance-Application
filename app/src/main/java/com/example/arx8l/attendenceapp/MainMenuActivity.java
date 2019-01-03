@@ -50,7 +50,8 @@ public class MainMenuActivity extends AppCompatActivity implements
         MainScreenFragment.OnFragmentInteractionListener,
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
         ClassAttendanceFragment.OnFragmentInteractionListener,
-        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnSomeEventListener {
+        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnSomeEventListener ,
+        DetailClassAttendanceFragment.OnFragmentInteractionListener{
 
     private Bundle bundle;
     private int classAttendance = 95;
