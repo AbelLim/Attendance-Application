@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-   >
+    android:background="@drawable/jcu_background">
 
 
     <ImageView
@@ -10,30 +12,35 @@
         android:layout_height="match_parent"
         android:background="#BAFFFFFF"
         />
+
     <EditText
         android:id="@+id/et_cer"
-        android:paddingLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="Enter Certificate NO."/>
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:hint="Enter Certificate No."
+        android:paddingLeft="16dp"
+        android:singleLine="true"
+        android:textAlignment="center"
+        android:textStyle="italic" />
+
     <TextView
         android:id="@+id/et_photo"
-        android:gravity="center_vertical"
-        android:layout_below="@id/et_cer"
-        android:paddingLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Upload Photo"/>
+        android:layout_below="@id/et_cer"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:singleLine="true"
+        android:text="Upload Photo"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:id="@+id/ll_date"
@@ -47,45 +54,51 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_marginLeft="16dp"
-            android:layout_gravity="center"
-            android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Peroid of Absence"/>
+            android:layout_gravity="center"
+            android:layout_marginLeft="16dp"
+            android:gravity="center_vertical"
+            android:text="Peroid of Absence" />
+
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="right|center_vertical"
-            android:paddingRight="8dp"
-            android:hint="select here"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@null"
-            />
+            android:gravity="right|center_vertical"
+            android:hint="select here"
+            android:paddingRight="8dp"
+            android:text="Select Here" />
     </LinearLayout>
+
     <EditText
         android:id="@+id/et_reason"
-        android:layout_below="@id/ll_date"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:background="@drawable/et_bg"
-        android:singleLine="true"
-        android:gravity="start"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:hint="YOUR REASON"/>
+        android:layout_below="@id/ll_date"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:gravity="start"
+        android:hint="Your Reason..."
+        android:padding="8dp"
+        android:singleLine="true"
+        android:textAlignment="textStart"
+        android:textStyle="italic" />
 
     <Button
         android:id="@+id/bt_submit"
-        android:layout_marginLeft="27dp"
-        android:layout_marginRight="27dp"
-        android:textColor="@color/white"
-        android:layout_marginTop="16dp"
+        android:layout_width="321dp"
+        android:layout_height="59dp"
         android:layout_below="@+id/et_reason"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="61dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/corner_submit"
         android:text="Submit"
-        android:background="@drawable/corner_submit"/>
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
 </RelativeLayout>
