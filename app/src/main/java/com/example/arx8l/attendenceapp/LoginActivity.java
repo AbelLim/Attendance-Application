@@ -3,6 +3,7 @@ package com.example.arx8l.attendenceapp;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,11 +50,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mLogin.login(login, password, new LoginManager.OnLoginListener() {
             @Override
             public void OnStart() {
+                Log.e("TAG", "-------OnStart");
                 Toast.makeText(LoginActivity.this, "Logging in...", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void OnSuccess(User user) {
+                Log.e("TAG", "-------OnSuccess");
                 Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
                 intent.putExtra("UserID", user.getUserID());
                 startActivity(intent);
@@ -61,6 +64,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             @Override
             public void OnFailure() {
+                Log.e("TAG", "-------OnFailure");
                 loginFailedError();
             }
         });

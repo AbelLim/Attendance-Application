@@ -11,6 +11,7 @@ public class User {
     private String loginID;
     private String password;
     private Boolean isTappedIn;
+
     private String tapInTime;
     private Map<String, Boolean> campusAttendance = new HashMap<>();
 

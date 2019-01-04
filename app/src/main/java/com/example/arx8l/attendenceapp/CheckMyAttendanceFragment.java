@@ -123,7 +123,7 @@ public class CheckMyAttendanceFragment extends Fragment{
                 Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
 
             }
-                //put if-else here campus to class
+
 
             public void onSwipeRight() {
                 boolean currentScreenIsCampus = true;

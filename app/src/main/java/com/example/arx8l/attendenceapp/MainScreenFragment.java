@@ -101,11 +101,13 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     AttendanceManager attendanceManager;
     User u;
     Location userLocation;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     private long mTimeLeftInMillis = 30000;
     private long timeUserTappedIn;
     private boolean userTappedIn;
     private boolean timerIsRunning;
+    private boolean userIsStudent = false;
     private int classAttendance;
     private int campusAttendance;
     private String userId = "12345678";
@@ -162,8 +164,8 @@ public class MainScreenFragment extends Fragment implements LocationListener{
 
         classes = new ArrayList<>();
 
-        cp3408L = new Class("CP3408-Lecture", "14:00", "15:50");
-        cp3408P = new Class("CP3408-Practical", "13:00", "14:50");
+        cp3408L = new Class("CP3408-Lecture", "14:00", "15:50", false);
+        cp3408P = new Class("CP3408-Practical", "13:00", "14:50", false);
 
         classes.add(cp3408L);
         classes.add(cp3408P);
@@ -349,18 +351,18 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     }
 
 
-    public interface OnSomeEventListener {
-        public void someEvent();
+    public interface OnAttendanceChangeListener {
+        public void attendanceChange();
     }
 
-    OnSomeEventListener someEventListener;
+    OnAttendanceChangeListener attendanceChangeListener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
-            someEventListener = (OnSomeEventListener) context;
+            attendanceChangeListener = (OnAttendanceChangeListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -487,26 +489,87 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                     Class checkingClass = getCheckingClass(classID);
                     HashMap<String, Boolean> attendanceDaysCheck = classAttendanceDaysCheck.get(classID);
 
-                    if (attendanceDaysCheck.containsKey(currentDateString) &&
-                            LocalTime.parse(currentTimeString).isAfter(LocalTime.parse(checkingClass.getStartTime())) &&
-                            LocalTime.parse(currentTimeString).
-                                    isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
-
-                        if (attendanceDaysCheck.get(currentDateString) == null) {
-                            attendanceDaysCheck.put(currentDateString, true);
-                            alertMessage("Successfully tapped in for " + checkingClass.getName());
-                        } else if (attendanceDaysCheck.get(currentDateString)) {
-                            alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
-                        } else {
+                    if (!userIsStudent){
+                        if (attendanceDaysCheck.containsKey(currentDateString)){
+                            if (checkingClass.getUserTappedIn()) {
+                                if (LocalTime.parse(currentTimeString).
+                                        isAfter(LocalTime.parse(getClassTapOutStartTime(checkingClass.getEndTime()))) &&
+                                        LocalTime.parse(currentTimeString).
+                                                isBefore(LocalTime.parse(getClassTapOutEndTime(checkingClass.getEndTime())))) {
+                                    if (attendanceDaysCheck.get(currentDateString) == null) {
+                                        attendanceDaysCheck.put(currentDateString, true);
+                                        checkingClass.setUserTappedIn(false);
+                                        alertMessage("Successfully tapped out for " + checkingClass.getName());
+                                        saveHashMap();
+                                        attendanceChangeListener.attendanceChange();
+                                    } else {
+                                        alertMessage("Date error");
+                                    }
+                                } else {
+                                    alertMessage("Not the time for tap out yet");
+                                }
+                            }
+                            else {
+                                if (LocalTime.parse(currentTimeString).
+                                        isAfter(LocalTime.parse(getClassTapInStartTime(checkingClass.getStartTime()))) &&
+                                        LocalTime.parse(currentTimeString).
+                                                isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
+                                    if (attendanceDaysCheck.get(currentDateString) == null) {
+                                        checkingClass.setUserTappedIn(true);
+                                        alertMessage("Successfully tapped in for " + checkingClass.getName());
+                                    }
+                                    else {
+                                        alertMessage("Date error");
+                                    }
+                                }
+                                else {
+                                    if (attendanceDaysCheck.get(currentDateString) == null) {
+                                        alertMessage("Not the time for tap in yet");
+                                    }
+                                    else if (attendanceDaysCheck.get(currentDateString)) {
+                                        alertMessage("Today you have successfully tapped in and tapped out for "
+                                                + checkingClass.getName());
+                                    }
+                                    else {
+                                        alertMessage("Date error");
+                                    }
+                                }
+                            }
+                        }
+                        else {
                             alertMessage("Date error");
                         }
-                        saveHashMap();
-                        someEventListener.someEvent();
-                    } else if (attendanceDaysCheck.containsKey(currentDateString)
-                            && attendanceDaysCheck.get(currentDateString)) {
-                        alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
-                    } else {
-                        alertMessage("Date-Time error");
+                    }
+                    else {
+                        if (attendanceDaysCheck.containsKey(currentDateString)) {
+                            if (LocalTime.parse(currentTimeString).
+                                    isAfter(LocalTime.parse(getClassTapInStartTime(checkingClass.getStartTime()))) &&
+                                    LocalTime.parse(currentTimeString).
+                                            isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
+                                if (attendanceDaysCheck.get(currentDateString) == null) {
+                                    attendanceDaysCheck.put(currentDateString, true);
+                                    alertMessage("Successfully tapped in for " + checkingClass.getName());
+                                } else if (attendanceDaysCheck.get(currentDateString)) {
+                                    alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                                } else {
+                                    alertMessage("Date error");
+                                }
+                                saveHashMap();
+                                attendanceChangeListener.attendanceChange();
+                            }
+                            else {
+                                if (attendanceDaysCheck.get(currentDateString) == null) {
+                                    alertMessage("Not the time for tap in yet");
+                                } else if (attendanceDaysCheck.get(currentDateString)) {
+                                    alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                                } else {
+                                    alertMessage("Date error");
+                                }
+                            }
+                        }
+                        else {
+                            alertMessage("Date error");
+                        }
                     }
                 } else {
                     alertMessage("QR code error");
@@ -547,7 +610,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
 
                                 saveHashMap();
 
-                                someEventListener.someEvent();
+                                attendanceChangeListener.attendanceChange();
                                 userTappedIn = u.getTappedIn();
                                 tapOutBtt.setVisibility(View.GONE);
                             }
@@ -575,7 +638,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     }
 
     private Class getCheckingClass(String classID){
-        Class checkingClass = new Class("", "", "");
+        Class checkingClass = new Class("", "", "", false);
         for(Class c : classes){
             if (c.getName().equals(classID))
             {
@@ -626,11 +689,28 @@ public class MainScreenFragment extends Fragment implements LocationListener{
         cdt.start();
     }
 
-    public String getClassTapInEndTime(String startTime){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        LocalTime lcStartTime = LocalTime.parse(startTime);
+    public String getClassTapInStartTime(String classStartTime){
+        LocalTime lcStartTime = LocalTime.parse(classStartTime);
+        lcStartTime = lcStartTime.minusMinutes(15);
+        return lcStartTime.format(formatter);
+    }
+
+    public String getClassTapInEndTime(String classStartTime){
+        LocalTime lcStartTime = LocalTime.parse(classStartTime);
         lcStartTime = lcStartTime.plusMinutes(15);
         return lcStartTime.format(formatter);
+    }
+
+    public String getClassTapOutStartTime(String classEndTime){
+        LocalTime lcEndTime = LocalTime.parse(classEndTime);
+        lcEndTime = lcEndTime.minusMinutes(30);
+        return lcEndTime.format(formatter);
+    }
+
+    public String getClassTapOutEndTime(String classEndTime){
+        LocalTime lcEndTime = LocalTime.parse(classEndTime);
+        lcEndTime = lcEndTime.plusMinutes(30);
+        return lcEndTime.format(formatter);
     }
 
     public void loadHashMap(){

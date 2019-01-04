@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
@@ -13,9 +14,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,7 +53,8 @@ public class MainMenuActivity extends AppCompatActivity implements
         MainScreenFragment.OnFragmentInteractionListener,
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
         ClassAttendanceFragment.OnFragmentInteractionListener,
-        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnSomeEventListener {
+        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnAttendanceChangeListener ,
+        DetailClassAttendanceFragment.OnFragmentInteractionListener{
 
     private Bundle bundle;
     private int classAttendance;
@@ -72,6 +79,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     private String userId;
     private User userInfo;
 
+    
     ImageView settings;
     ImageView tapInTapOut;
     ImageView checkMyAttendance;
@@ -92,12 +100,17 @@ public class MainMenuActivity extends AppCompatActivity implements
         cp3408Lecture = new HashMap<String, Boolean>();
         cp3408Practical = new HashMap<String, Boolean>();
 
+
+
         attendanceManager = new AttendanceManager();
 
         //Get User info from server.
         requestUserInfo();
 
         loadHashMap();
+
+        classAttendanceDaysCheck.put("CP3408-Lecture", cp3408Lecture);
+        classAttendanceDaysCheck.put("CP3408-Practical", cp3408Practical);
 
         registerReceiver(mDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
@@ -167,60 +180,25 @@ public class MainMenuActivity extends AppCompatActivity implements
 
         saveHashMap();
 
-        for (String name : classAttendanceDaysCheck.keySet()){
-            System.out.println(name + ": " + classAttendanceDaysCheck.get(name));
-        }
+//        for (String name : classAttendanceDaysCheck.keySet()){
+//            System.out.println(name + ": " + classAttendanceDaysCheck.get(name));
+//        }
+//
+//        System.out.println("campusAttendanceDaysCheck >>> ");
+//        ArrayList<String> sortedKeys2 =
+//                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
+//        Collections.sort(sortedKeys2, new Comparator<String>() {
+//            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+//            @Override
+//            public int compare(String o1, String o2) {
+//                try {
+//                    return f.parse(o1).compareTo(f.parse(o2));
+//                } catch (ParseException e) {
+//                    throw new IllegalArgumentException(e);
+//                }
+//            }
+//        });
 
-        System.out.println("campusAttendanceDaysCheck >>> ");
-        ArrayList<String> sortedKeys2 =
-                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
-        Collections.sort(sortedKeys2, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-        for (String x : sortedKeys2)
-            System.out.println(x + ": " + campusAttendanceDaysCheck.get(x));
-
-        System.out.println("cp3408Lecture >>> ");
-        ArrayList<String> sortedKeys =
-                new ArrayList<String>(classAttendanceDaysCheck.get("CP3408-Lecture").keySet());
-        Collections.sort(sortedKeys, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-        for (String x : sortedKeys)
-            System.out.println(x + ": " + classAttendanceDaysCheck.get("CP3408-Lecture").get(x));
-
-        System.out.println("cp3408Practical >>> ");
-        ArrayList<String> sortedKeys1 =
-                new ArrayList<String>(classAttendanceDaysCheck.get("CP3408-Practical").keySet());
-        Collections.sort(sortedKeys1, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-        for (String x : sortedKeys1)
-            System.out.println(x + ": " + classAttendanceDaysCheck.get("CP3408-Practical").get(x));
 
         checkMyAttendance = findViewById(R.id.check_my_attendance);
         tapInTapOut = findViewById(R.id.tap_in_tap_out);
@@ -248,7 +226,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                showSettingPop();
             }
         });
 
@@ -388,7 +366,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void someEvent() {
+    public void attendanceChange() {
         upDateMainScreen();
     }
 
@@ -506,5 +484,87 @@ public class MainMenuActivity extends AppCompatActivity implements
             }
             upDateMainScreen();
         }
+    }
+
+
+    private void call(String phone) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    public void sendEmail() {
+
+
+        Intent data=new Intent(Intent.ACTION_SENDTO);
+        data.setData(Uri.parse("mailto:studentservices-singapore@jcu.edu.au"));
+        data.putExtra(Intent.EXTRA_SUBJECT, "");
+        data.putExtra(Intent.EXTRA_TEXT, "");
+        startActivity(data);
+    }
+
+    private void showUp(View v, PopupWindow window) {
+        v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int measuredHeight = v.getMeasuredHeight();
+        int[] location = new int[2];
+        settings.getLocationOnScreen(location);
+        window.showAtLocation(settings, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight);
+    }
+
+
+    private void showContactPop() {
+        PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.pop_contacts, null);
+        RelativeLayout phone = view.findViewById(R.id.layout_phone);
+        RelativeLayout email = view.findViewById(R.id.layout_email);
+
+        phone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                call("+65 6709 3888");
+            }
+        });
+
+        email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                sendEmail();
+            }
+        });
+
+        popupWindow.setContentView(view);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
+        popupWindow.setOutsideTouchable(true);
+        showUp(view, popupWindow);
+        popupWindow.update();
+    }
+
+
+    public void showSettingPop() {
+        PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.pop_setting, null);
+        RelativeLayout contacts = view.findViewById(R.id.layout_contacts);
+
+        contacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                showContactPop();
+            }
+        });
+
+        popupWindow.setContentView(view);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
+        popupWindow.setOutsideTouchable(true);
+        showUp(view, popupWindow);
+        popupWindow.update();
     }
 }
