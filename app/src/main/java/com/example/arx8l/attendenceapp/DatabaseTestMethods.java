@@ -17,7 +17,7 @@ public class DatabaseTestMethods {
 
     public void createUser()
     {
-        database.createUser("51235434", "Tom", "tom@my.jcu.edu.au", "Password");
+        database.createUser("12345678", "Tom", "jc123456", "Password");
     }
 
     public void login()
