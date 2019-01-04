@@ -100,6 +100,9 @@ public class MainMenuActivity extends AppCompatActivity implements
         cp3408Lecture = new HashMap<String, Boolean>();
         cp3408Practical = new HashMap<String, Boolean>();
 
+        classAttendanceDaysCheck.put("CP3408-Lecture", cp3408Lecture);
+        classAttendanceDaysCheck.put("CP3408-Practical", cp3408Practical);
+
         attendanceManager = new AttendanceManager();
 
         //Get User info from server.
@@ -175,60 +178,25 @@ public class MainMenuActivity extends AppCompatActivity implements
 
         saveHashMap();
 
-        for (String name : classAttendanceDaysCheck.keySet()){
-            System.out.println(name + ": " + classAttendanceDaysCheck.get(name));
-        }
+//        for (String name : classAttendanceDaysCheck.keySet()){
+//            System.out.println(name + ": " + classAttendanceDaysCheck.get(name));
+//        }
+//
+//        System.out.println("campusAttendanceDaysCheck >>> ");
+//        ArrayList<String> sortedKeys2 =
+//                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
+//        Collections.sort(sortedKeys2, new Comparator<String>() {
+//            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+//            @Override
+//            public int compare(String o1, String o2) {
+//                try {
+//                    return f.parse(o1).compareTo(f.parse(o2));
+//                } catch (ParseException e) {
+//                    throw new IllegalArgumentException(e);
+//                }
+//            }
+//        });
 
-        System.out.println("campusAttendanceDaysCheck >>> ");
-        ArrayList<String> sortedKeys2 =
-                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
-        Collections.sort(sortedKeys2, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-        for (String x : sortedKeys2)
-            System.out.println(x + ": " + campusAttendanceDaysCheck.get(x));
-
-        System.out.println("cp3408Lecture >>> ");
-        ArrayList<String> sortedKeys =
-                new ArrayList<String>(classAttendanceDaysCheck.get("CP3408-Lecture").keySet());
-        Collections.sort(sortedKeys, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-        for (String x : sortedKeys)
-            System.out.println(x + ": " + classAttendanceDaysCheck.get("CP3408-Lecture").get(x));
-
-        System.out.println("cp3408Practical >>> ");
-        ArrayList<String> sortedKeys1 =
-                new ArrayList<String>(classAttendanceDaysCheck.get("CP3408-Practical").keySet());
-        Collections.sort(sortedKeys1, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-            @Override
-            public int compare(String o1, String o2) {
-                try {
-                    return f.parse(o1).compareTo(f.parse(o2));
-                } catch (ParseException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-        for (String x : sortedKeys1)
-            System.out.println(x + ": " + classAttendanceDaysCheck.get("CP3408-Practical").get(x));
 
         checkMyAttendance = findViewById(R.id.check_my_attendance);
         tapInTapOut = findViewById(R.id.tap_in_tap_out);
