@@ -27,8 +27,8 @@
         android:textAlignment="center"
         android:textStyle="italic" />
 
-    <TextView
-        android:id="@+id/et_photo"
+    <Button
+        android:id="@+id/bt_photo"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@id/et_cer"
@@ -44,7 +44,7 @@
 
     <LinearLayout
         android:id="@+id/ll_date"
-        android:layout_below="@id/et_photo"
+        android:layout_below="@id/bt_photo"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="16dp"

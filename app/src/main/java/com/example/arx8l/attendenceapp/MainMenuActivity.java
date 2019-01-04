@@ -249,6 +249,9 @@ public class MainMenuActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
                 FragmentManager fragmentManager = getSupportFragmentManager();
+                Bundle args = new Bundle();
+                args.putString("userID", userId);
+                medicalLeaveFragment.setArguments(args);
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
                 fragmentTransaction.commit();
