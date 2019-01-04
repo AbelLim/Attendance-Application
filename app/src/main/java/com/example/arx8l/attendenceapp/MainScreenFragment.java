@@ -351,18 +351,18 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     }
 
 
-    public interface OnSomeEventListener {
-        public void someEvent();
+    public interface OnAttendanceChangeListener {
+        public void attendanceChange();
     }
 
-    OnSomeEventListener someEventListener;
+    OnAttendanceChangeListener attendanceChangeListener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
-            someEventListener = (OnSomeEventListener) context;
+            attendanceChangeListener = (OnAttendanceChangeListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -501,7 +501,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                         checkingClass.setUserTappedIn(false);
                                         alertMessage("Successfully tapped out for " + checkingClass.getName());
                                         saveHashMap();
-                                        someEventListener.someEvent();
+                                        attendanceChangeListener.attendanceChange();
                                     } else {
                                         alertMessage("Date error");
                                     }
@@ -555,7 +555,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                     alertMessage("Date error");
                                 }
                                 saveHashMap();
-                                someEventListener.someEvent();
+                                attendanceChangeListener.attendanceChange();
                             }
                             else {
                                 if (attendanceDaysCheck.get(currentDateString) == null) {
@@ -610,7 +610,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
 
                                 saveHashMap();
 
-                                someEventListener.someEvent();
+                                attendanceChangeListener.attendanceChange();
                                 userTappedIn = u.getTappedIn();
                                 tapOutBtt.setVisibility(View.GONE);
                             }

@@ -75,6 +75,7 @@ public class DetailClassAttendanceFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                classAttendanceFragment.setArguments(getArguments());
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setCustomAnimations(R.animator.card_flip_right_in,

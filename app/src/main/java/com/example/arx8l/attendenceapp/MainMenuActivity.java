@@ -53,7 +53,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         MainScreenFragment.OnFragmentInteractionListener,
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
         ClassAttendanceFragment.OnFragmentInteractionListener,
-        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnSomeEventListener ,
+        CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnAttendanceChangeListener ,
         DetailClassAttendanceFragment.OnFragmentInteractionListener{
 
     private Bundle bundle;
@@ -100,8 +100,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         cp3408Lecture = new HashMap<String, Boolean>();
         cp3408Practical = new HashMap<String, Boolean>();
 
-        classAttendanceDaysCheck.put("CP3408-Lecture", cp3408Lecture);
-        classAttendanceDaysCheck.put("CP3408-Practical", cp3408Practical);
+
 
         attendanceManager = new AttendanceManager();
 
@@ -109,6 +108,9 @@ public class MainMenuActivity extends AppCompatActivity implements
         requestUserInfo();
 
         loadHashMap();
+
+        classAttendanceDaysCheck.put("CP3408-Lecture", cp3408Lecture);
+        classAttendanceDaysCheck.put("CP3408-Practical", cp3408Practical);
 
         registerReceiver(mDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
@@ -364,7 +366,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void someEvent() {
+    public void attendanceChange() {
         upDateMainScreen();
     }
 
