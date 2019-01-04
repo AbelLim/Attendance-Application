@@ -93,8 +93,6 @@ public class ClassAttendanceFragment extends Fragment {
                             R.animator.card_flip_left_out);
                     fragmentTransaction.replace(R.id.container_frag_att, detailClassAttendanceFragment, "");
                     fragmentTransaction.commit();
-
-
             }
         });
 

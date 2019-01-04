@@ -79,6 +79,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     private String userId;
     private User userInfo;
 
+    
     ImageView settings;
     ImageView tapInTapOut;
     ImageView checkMyAttendance;
