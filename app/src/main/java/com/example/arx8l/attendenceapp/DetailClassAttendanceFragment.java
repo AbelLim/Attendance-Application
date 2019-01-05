@@ -77,7 +77,9 @@ public class DetailClassAttendanceFragment extends Fragment {
         info2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /// flip from detail to class
                 ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                classAttendanceFragment.setArguments(getArguments()); // flip back to class
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setCustomAnimations(R.animator.card_flip_right_in,
@@ -87,6 +89,7 @@ public class DetailClassAttendanceFragment extends Fragment {
                 fragmentTransaction.replace(R.id.container_frag_att,
                         classAttendanceFragment, "");
                 fragmentTransaction.commit();
+                ///
             }
         });
 

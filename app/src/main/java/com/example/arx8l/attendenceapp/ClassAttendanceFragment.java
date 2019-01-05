@@ -78,28 +78,26 @@ public class ClassAttendanceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View myFragmentView = inflater.inflate(R.layout.fragment_class_attendance, container,
-                false);
+        View myFragmentView = inflater.inflate(R.layout.fragment_class_attendance, container, false);
 
-        //set icon 1 animation so it can flip the class attendance to the detailed attendance.
         info1 = myFragmentView.findViewById(R.id.info_1);
         info1.setOnClickListener(new View.OnClickListener() {
             @Override
                 public void onClick(View v) {
-                    DetailClassAttendanceFragment detailClassAttendanceFragment =
-                            new DetailClassAttendanceFragment();
+                // flip from class to detail
+                    DetailClassAttendanceFragment detailClassAttendanceFragment = new DetailClassAttendanceFragment();
+                    detailClassAttendanceFragment.setArguments(getArguments()); //flip to detailed attendance
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(R.animator.card_flip_right_in,
                             R.animator.card_flip_right_out,
                             R.animator.card_flip_left_in,
                             R.animator.card_flip_left_out);
-                    fragmentTransaction.replace(R.id.container_frag_att,
-                            detailClassAttendanceFragment, "");
+                    fragmentTransaction.replace(R.id.container_frag_att, detailClassAttendanceFragment, "");
                     fragmentTransaction.commit();
-
-            }
-        });
+                    ///
+                }
+            });
 
 //        myFragmentView.setOnClickListener(new View.OnClickListener() {
 //            @Override
