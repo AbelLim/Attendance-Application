@@ -68,7 +68,10 @@ public class DetailClassAttendanceFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View myFragmentView = inflater.inflate(R.layout.fragment_detailed_class_attendance,container, false);
+
+      // set icon 2 image animation for detailed attendance so it flips back to class Attendance.
+        View myFragmentView = inflater.inflate(R.layout.fragment_detailed_class_attendance,
+                container, false);
         ImageView info2;
         info2 = myFragmentView.findViewById(R.id.info_2);
         info2.setOnClickListener(new View.OnClickListener() {
@@ -82,7 +85,8 @@ public class DetailClassAttendanceFragment extends Fragment {
                         R.animator.card_flip_right_out,
                         R.animator.card_flip_left_in,
                         R.animator.card_flip_left_out);
-                fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "");
+                fragmentTransaction.replace(R.id.container_frag_att,
+                        classAttendanceFragment, "");
                 fragmentTransaction.commit();
             }
         });
@@ -90,6 +94,7 @@ public class DetailClassAttendanceFragment extends Fragment {
         return myFragmentView;
 
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
