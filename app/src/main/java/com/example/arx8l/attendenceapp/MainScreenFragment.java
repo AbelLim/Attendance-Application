@@ -17,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -93,6 +94,8 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     TextView countDownTimerText;
     TextView campusPercentageText;
     TextView classPercentageText;
+    TextView userNameText;
+    TextView userIdText;
     ImageView tapInTapOut;
     CircularProgressBar campusCircleProgressBar;
     CircularProgressBar classCircleProgressBar;
@@ -107,12 +110,13 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     private long timeUserTappedIn;
     private boolean userTappedIn;
     private boolean timerIsRunning;
-    private boolean userIsStudent = false;
+    private boolean userIsStudent;
     private int classAttendance;
     private int campusAttendance;
-    private String userId = "12345678";
-    private HashMap<String, Boolean> campusAttendanceDaysCheck;
-    private HashMap<String, HashMap<String, Boolean>> classAttendanceDaysCheck;
+    private String userId;
+    private String userName;
+    private HashMap<String, String> campusAttendanceDaysCheck;
+    private HashMap<String, HashMap<String, String>> classAttendanceDaysCheck = new HashMap<>();
     private String currentDateString;
     private String currentTimeString;
     private ArrayList<Class> classes;
@@ -164,11 +168,11 @@ public class MainScreenFragment extends Fragment implements LocationListener{
 
         classes = new ArrayList<>();
 
-        cp3408L = new Class("CP3408-Lecture", "14:00", "15:50", false);
-        cp3408P = new Class("CP3408-Practical", "13:00", "14:50", false);
-
-        classes.add(cp3408L);
-        classes.add(cp3408P);
+//        cp3408L = new Class("CP3408-Lecture", "14:00", "15:50", false);
+//        cp3408P = new Class("CP3408-Practical", "13:00", "14:50", false);
+//
+//        classes.add(cp3408L);
+//        classes.add(cp3408P);
 
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
@@ -180,14 +184,20 @@ public class MainScreenFragment extends Fragment implements LocationListener{
             userLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
 
-        loadHashMap();
-
         if (getArguments() != null) {
+            userName = getArguments().getString("user name");
+            userId = getArguments().getString("user id");
             classAttendance = getArguments().getInt("class attendance");
             campusAttendance = getArguments().getInt("campus attendance");
         }
 
+
         countdownTimerLayout = myFragmentView.findViewById(R.id.countdown_timer_layout);
+
+        userNameText = myFragmentView.findViewById(R.id.user_name);
+        userNameText.setText(userName);
+        userIdText = myFragmentView.findViewById(R.id.user_id);
+        userIdText.setText("JCU ID: " + userId);
 
         classPercentageText = myFragmentView.findViewById(R.id.class_percentage);
         classPercentageText.setText(classAttendance + "%");
@@ -264,8 +274,14 @@ public class MainScreenFragment extends Fragment implements LocationListener{
             @Override
             public void OnSuccess(User user) {
                 u = user;
+                campusAttendanceDaysCheck = user.getCampusAttendance();
+                classes = user.getClasses();
+                for (Class userClass : classes){
+                    classAttendanceDaysCheck.put(userClass.getClassID(), userClass.getAttendance());
+                }
 
                 userTappedIn = u.getTappedIn();
+                userIsStudent = user.getIsStudent();
 
                 if(userTappedIn && cdt == null){
                     countdownTimerLayout.addView(countDownTimerText);
@@ -414,7 +430,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
 
         LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
         currentDateString = currentDateTime.format(dateFormatter);
@@ -431,13 +447,13 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                         tapOutForCampus(scanResult);
                     } else if (!campusAttendanceDaysCheck.containsKey(currentDateString)) {
                         alertMessage("Date error");
-                    } else if (campusAttendanceDaysCheck.get(currentDateString) != null) {
-                        if (campusAttendanceDaysCheck.get(currentDateString)) {
+                    } else if (!campusAttendanceDaysCheck.get(currentDateString).equals("Null")) {
+                        if (campusAttendanceDaysCheck.get(currentDateString).equals("True")) {
                             alertMessage("Today you have successfully tapped in and tapped out!");
                         } else {
                             alertMessage("Date error");
                         }
-                    } else if (campusAttendanceDaysCheck.get(currentDateString) == null) {
+                    } else if (campusAttendanceDaysCheck.get(currentDateString).equals("Null")) {
                         attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
                             @Override
                             public void OnStart() {
@@ -466,7 +482,6 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                         timeUserTappedIn = date.getTime();
                                         userTappedIn = u.getTappedIn();
                                         startTimer();
-
                                     }
 
                                     @Override
@@ -487,7 +502,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                 } else if (classAttendanceDaysCheck.containsKey(scanResult)) {
                     String classID = scanResult;
                     Class checkingClass = getCheckingClass(classID);
-                    HashMap<String, Boolean> attendanceDaysCheck = classAttendanceDaysCheck.get(classID);
+                    HashMap<String, String> attendanceDaysCheck = classAttendanceDaysCheck.get(classID);
 
                     if (!userIsStudent){
                         if (attendanceDaysCheck.containsKey(currentDateString)){
@@ -496,12 +511,43 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                         isAfter(LocalTime.parse(getClassTapOutStartTime(checkingClass.getEndTime()))) &&
                                         LocalTime.parse(currentTimeString).
                                                 isBefore(LocalTime.parse(getClassTapOutEndTime(checkingClass.getEndTime())))) {
-                                    if (attendanceDaysCheck.get(currentDateString) == null) {
-                                        attendanceDaysCheck.put(currentDateString, true);
-                                        checkingClass.setUserTappedIn(false);
-                                        alertMessage("Successfully tapped out for " + checkingClass.getName());
-                                        saveHashMap();
-                                        attendanceChangeListener.attendanceChange();
+                                    if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
+                                        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                                            @Override
+                                            public void OnStart() {
+
+                                            }
+
+                                            @Override
+                                            public void OnSuccess(User user) {
+                                                for (Class userClass : user.getClasses()){
+                                                    if (userClass.getClassID().equals(checkingClass.getClassID())){
+                                                        userClass.putAttendance(currentDateString, "True");
+                                                        userClass.setUserTappedIn(false);
+                                                    }
+                                                }
+                                                for (Class userClass : classes){
+                                                    if (userClass.getClassID().equals(checkingClass.getClassID())){
+                                                        userClass.setUserTappedIn(false);
+                                                    }
+                                                }
+                                                attendanceManager.updateUser(userId, user);
+                                                alertMessage("Successfully tapped out for " + checkingClass.getClassID());
+                                                Handler handler = new Handler();
+                                                handler.postDelayed(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        attendanceChangeListener.attendanceChange();
+                                                    }
+                                                }, 1000);
+                                            }
+
+                                            @Override
+                                            public void OnFailure() {
+
+                                            }
+                                        });
+
                                     } else {
                                         alertMessage("Date error");
                                     }
@@ -514,21 +560,46 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                         isAfter(LocalTime.parse(getClassTapInStartTime(checkingClass.getStartTime()))) &&
                                         LocalTime.parse(currentTimeString).
                                                 isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
-                                    if (attendanceDaysCheck.get(currentDateString) == null) {
-                                        checkingClass.setUserTappedIn(true);
-                                        alertMessage("Successfully tapped in for " + checkingClass.getName());
+                                    if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
+                                        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                                            @Override
+                                            public void OnStart() {
+
+                                            }
+
+                                            @Override
+                                            public void OnSuccess(User user) {
+                                                for (Class userClass : user.getClasses()){
+                                                    if (userClass.getClassID().equals(checkingClass.getClassID())){
+                                                        userClass.setUserTappedIn(true);
+                                                    }
+                                                }
+                                                for (Class userClass : classes){
+                                                    if (userClass.getClassID().equals(checkingClass.getClassID())){
+                                                        userClass.setUserTappedIn(true);
+                                                    }
+                                                }
+                                                attendanceManager.updateUser(userId, user);
+                                                alertMessage("Successfully tapped in for " + checkingClass.getClassID());
+                                            }
+
+                                            @Override
+                                            public void OnFailure() {
+
+                                            }
+                                        });
                                     }
                                     else {
                                         alertMessage("Date error");
                                     }
                                 }
                                 else {
-                                    if (attendanceDaysCheck.get(currentDateString) == null) {
+                                    if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
                                         alertMessage("Not the time for tap in yet");
                                     }
-                                    else if (attendanceDaysCheck.get(currentDateString)) {
+                                    else if (attendanceDaysCheck.get(currentDateString).equals("True")) {
                                         alertMessage("Today you have successfully tapped in and tapped out for "
-                                                + checkingClass.getName());
+                                                + checkingClass.getClassID());
                                     }
                                     else {
                                         alertMessage("Date error");
@@ -546,22 +617,47 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                     isAfter(LocalTime.parse(getClassTapInStartTime(checkingClass.getStartTime()))) &&
                                     LocalTime.parse(currentTimeString).
                                             isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
-                                if (attendanceDaysCheck.get(currentDateString) == null) {
-                                    attendanceDaysCheck.put(currentDateString, true);
-                                    alertMessage("Successfully tapped in for " + checkingClass.getName());
-                                } else if (attendanceDaysCheck.get(currentDateString)) {
-                                    alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                                if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
+                                    attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+                                        @Override
+                                        public void OnStart() {
+
+                                        }
+
+                                        @Override
+                                        public void OnSuccess(User user) {
+                                            for (Class userClass : user.getClasses()){
+                                                if (userClass.getClassID().equals(checkingClass.getClassID())){
+                                                    userClass.putAttendance(currentDateString, "True");
+                                                }
+                                            }
+                                            attendanceManager.updateUser(userId, user);
+                                            alertMessage("Successfully tapped in for " + checkingClass.getClassID());
+                                            Handler handler = new Handler();
+                                            handler.postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    attendanceChangeListener.attendanceChange();
+                                                }
+                                            }, 1000);
+                                        }
+
+                                        @Override
+                                        public void OnFailure() {
+
+                                        }
+                                    });
+                                } else if (attendanceDaysCheck.get(currentDateString).equals("True")) {
+                                    alertMessage("Today you have successfully tapped in for " + checkingClass.getClassID());
                                 } else {
                                     alertMessage("Date error");
                                 }
-                                saveHashMap();
-                                attendanceChangeListener.attendanceChange();
                             }
                             else {
-                                if (attendanceDaysCheck.get(currentDateString) == null) {
+                                if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
                                     alertMessage("Not the time for tap in yet");
-                                } else if (attendanceDaysCheck.get(currentDateString)) {
-                                    alertMessage("Today you have successfully tapped in for " + checkingClass.getName());
+                                } else if (attendanceDaysCheck.get(currentDateString).equals("True")) {
+                                    alertMessage("Today you have successfully tapped in for " + checkingClass.getClassID());
                                 } else {
                                     alertMessage("Date error");
                                 }
@@ -586,7 +682,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
 
     private void tapOutForCampus(String scanResult){
         if (scanResult.equals("JCU QR Code Attendance")) {
-            if (campusAttendanceDaysCheck.get(currentDateString) == null) {
+            if (campusAttendanceDaysCheck.get(currentDateString).equals("Null")) {
                 attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
                     @Override
                     public void OnStart() {
@@ -604,13 +700,16 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                             @Override
                             public void OnSuccess(User user) {
                                 u = user;
-
-                                campusAttendanceDaysCheck.put(currentDateString, true);
+                                user.putCampusAttendance(currentDateString, "True");
                                 alertMessage("Successfully Tapped Out!");
-
-                                saveHashMap();
-
-                                attendanceChangeListener.attendanceChange();
+                                attendanceManager.updateUser(userId, user);
+                                Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        attendanceChangeListener.attendanceChange();
+                                    }
+                                }, 1000);
                                 userTappedIn = u.getTappedIn();
                                 tapOutBtt.setVisibility(View.GONE);
                             }
@@ -640,7 +739,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     private Class getCheckingClass(String classID){
         Class checkingClass = new Class("", "", "", false);
         for(Class c : classes){
-            if (c.getName().equals(classID))
+            if (c.getClassID().equals(classID))
             {
                 checkingClass = c;
             }
@@ -711,32 +810,6 @@ public class MainScreenFragment extends Fragment implements LocationListener{
         LocalTime lcEndTime = LocalTime.parse(classEndTime);
         lcEndTime = lcEndTime.plusMinutes(30);
         return lcEndTime.format(formatter);
-    }
-
-    public void loadHashMap(){
-        File file = new File(getActivity().getDir("data", MODE_PRIVATE), "map");
-        try {
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
-            campusAttendanceDaysCheck = (HashMap<String, Boolean>) inputStream.readObject();
-            classAttendanceDaysCheck = (HashMap<String, HashMap<String, Boolean>>) inputStream.readObject();
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void saveHashMap(){
-        File file = new File(getActivity().getDir("data", MODE_PRIVATE), "map");
-        try {
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-            outputStream.writeObject(campusAttendanceDaysCheck);
-            outputStream.writeObject(classAttendanceDaysCheck);
-            outputStream.flush();
-            outputStream.close();
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
     }
 
     @Override

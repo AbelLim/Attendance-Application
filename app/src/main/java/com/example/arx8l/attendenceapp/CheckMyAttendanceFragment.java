@@ -101,6 +101,8 @@ public class CheckMyAttendanceFragment extends Fragment{
                 break;
         }
 
+        // swipe left-right gesture for the campus and class attendance:
+
         myFragmentView.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
             public void onSwipeLeft() {
                 boolean currentScreenIsClass = true;
