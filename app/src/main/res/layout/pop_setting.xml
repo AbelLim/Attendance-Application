@@ -117,7 +117,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
             android:layout_toRightOf="@+id/img_log_out"
-            android:text="Log_out" />
+            android:text="Logout" />
 
         <Switch
             android:layout_width="wrap_content"
