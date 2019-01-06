@@ -1,5 +1,6 @@
 package com.example.arx8l.attendenceapp;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import java.io.BufferedReader;
@@ -56,23 +59,24 @@ public class MainMenuActivity extends AppCompatActivity implements
         CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnAttendanceChangeListener ,
         DetailClassAttendanceFragment.OnFragmentInteractionListener{
 
-    private Bundle bundle;
+    private Bundle attendanceBundle;
     private int classAttendance;
     private int campusAttendance;
-    private HashMap<String, Boolean> campusAttendanceDaysCheck;
-    private HashMap<String, HashMap<String, Boolean>> classAttendanceDaysCheck;
-    private HashMap<String, Boolean> cp3408Lecture;
-    private HashMap<String, Boolean> cp3408Practical;
+    private boolean isNewDay = false;
+    private HashMap<String, String> campusAttendanceDaysCheck;
+    private HashMap<String, HashMap<String, String>> classAttendanceDaysCheck;
+    private HashMap<String, String> cp3408Lecture;
+    private HashMap<String, String> cp3408Practical;
     private int daysTappedIn;
     private int daysTappedInRequired;
-    private String studyPeriodStartDateInString = "05/11/2018";
-    private String studyPeriodEndDateInString = "02/02/2019";
+    private String studyPeriodStartDateInString = "01-12-2018";
+    private String studyPeriodEndDateInString = "01-02-2019";
     private String startDate = "05/11/2018";
     private String endDate = "02/02/2019";
-    private String startDateInStringCP3408L = "07/11/2018";
-    private String endDateInStringCP3408L = "16/01/2019";
-    private String startDateInStringCP3408P = "08/11/2018";
-    private String endDateInStringCP3408P = "09/01/2019";
+    private String startDateInStringCP3408L = "05-12-2018";
+    private String endDateInStringCP3408L = "06-02-2019";
+    private String startDateInStringCP3408P = "06-12-2018";
+    private String endDateInStringCP3408P = "07-02-2019";
     private LocalDate currentDate;
     private String currentDateString;
     private String userIdForTesting = "12345678";
@@ -86,7 +90,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     ImageView medicalLeave;
 
     AttendanceManager attendanceManager;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 
     @Override
@@ -95,11 +99,10 @@ public class MainMenuActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_menu);
         getSupportActionBar().hide();
 
-        campusAttendanceDaysCheck = new HashMap<String, Boolean>();
-        classAttendanceDaysCheck = new HashMap<String, HashMap<String, Boolean>>();
-        cp3408Lecture = new HashMap<String, Boolean>();
-        cp3408Practical = new HashMap<String, Boolean>();
-
+        campusAttendanceDaysCheck = new HashMap<String, String>();
+        classAttendanceDaysCheck = new HashMap<String, HashMap<String, String>>();
+        cp3408Lecture = new HashMap<String, String>();
+        cp3408Practical = new HashMap<String, String>();
 
 
         attendanceManager = new AttendanceManager();
@@ -107,47 +110,13 @@ public class MainMenuActivity extends AppCompatActivity implements
         //Get User info from server.
         requestUserInfo();
 
-        loadHashMap();
+//        loadHashMap();;
 
-        classAttendanceDaysCheck.put("CP3408-Lecture", cp3408Lecture);
-        classAttendanceDaysCheck.put("CP3408-Practical", cp3408Practical);
 
         registerReceiver(mDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
         currentDate = LocalDate.now();
         currentDateString = currentDate.format(formatter);
-
-//        campusAttendanceDaysCheck.clear();
-
-        if(campusAttendanceDaysCheck.get(getYesterdayDateString())== null &&
-                campusAttendanceDaysCheck.containsKey(getYesterdayDateString())){
-            attendanceManager.tapOut(userIdForTesting, new AttendanceManager.OnTapOutListener() {
-                @Override
-                public void OnStart() {
-
-                }
-
-                @Override
-                public void OnSuccess() {
-
-                }
-
-                @Override
-                public void OnFailure() {
-
-                }
-            });
-        }
-
-        newDayUpdateAttendance(campusAttendanceDaysCheck);
-        for (String key : classAttendanceDaysCheck.keySet()){
-            newDayUpdateAttendance(classAttendanceDaysCheck.get(key));
-        }
-
-//        campusAttendanceDaysCheck.put("01/01/2019", null);
-//        campusAttendanceDaysCheck.put("02/01/2019", null);
-//        classAttendanceDaysCheck.get("CP3408-Lecture").put("02/01/2019" , null);
-//        classAttendanceDaysCheck.get("CP3408-Practical").put("03/01/2019" , null);
 
 //        LocalDate startDate = LocalDate.parse(studyPeriodStartDateInString, formatter);
 //        LocalDate endDate = LocalDate.parse(studyPeriodEndDateInString, formatter);
@@ -155,6 +124,131 @@ public class MainMenuActivity extends AppCompatActivity implements
 //        LocalDate endDateCP3408L = LocalDate.parse(endDateInStringCP3408L, formatter);
 //        LocalDate startDateCP3408P = LocalDate.parse(startDateInStringCP3408P, formatter);
 //        LocalDate endDateCP3408P = LocalDate.parse(endDateInStringCP3408P, formatter);
+
+//        for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
+//            if(!date.getDayOfWeek().name().equals("SATURDAY") && !date.getDayOfWeek().name().equals("SUNDAY")) {
+//                campusAttendanceDaysCheck.put(date.format(formatter), "Null");
+//            }
+//            System.out.println("Hey Hey Hey");
+//        }
+//
+//        for (LocalDate date = startDate; date.isBefore(currentDate); date = date.plusDays(1))
+//        {
+//            if(!date.getDayOfWeek().name().equals("SATURDAY") && !date.getDayOfWeek().name().equals("SUNDAY")) {
+//                int randNum = new Random().nextInt(2);
+//                if (randNum == 0) {
+//                    campusAttendanceDaysCheck.put(date.format(formatter), "False");
+//                } else if (randNum == 1) {
+//                    campusAttendanceDaysCheck.put(date.format(formatter), "True");
+//                }
+//            }
+//        }
+
+//        ArrayList<String> sortedKeys2 =
+//                new ArrayList<String>(cp3408Lecture.keySet());
+//        Collections.sort(sortedKeys2, new Comparator<String>() {
+//            DateFormat f = new SimpleDateFormat("dd-MM-yyyy");
+//            @Override
+//            public int compare(String o1, String o2) {
+//                try {
+//                    return f.parse(o1).compareTo(f.parse(o2));
+//                } catch (ParseException e) {
+//                    throw new IllegalArgumentException(e);
+//                }
+//            }
+//        });
+//
+//        for (String key: sortedKeys2){
+//            System.out.println(key + ": " + cp3408Lecture.get(key));
+//        }
+
+        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+            @Override
+            public void OnStart() {
+
+            }
+
+            @Override
+            public void OnSuccess(User user) {
+                newDayUpdateAttendance(user.getCampusAttendance());
+                for (Class userClass : user.getClasses()){
+                    newDayUpdateAttendance(userClass.getAttendance());
+                }
+//                user.getCampusAttendance().put("07-01-2019", "Null");
+//                user.getCampusAttendance().put("08-01-2019", "Null");
+//                user.getCampusAttendance().put("09-01-2019", "Null");
+//                user.getClasses().get(0).putAttendance("09-01-2019", "Null");
+//                user.getClasses().get(1).putAttendance("10-01-2019", "Null");
+
+                campusAttendanceDaysCheck = user.getCampusAttendance();
+                for (Class userClass : user.getClasses()){
+                    classAttendanceDaysCheck.put(userClass.getClassID(), userClass.getAttendance());
+                }
+
+                if(isNewDay){
+                    attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
+                        @Override
+                        public void OnStart() {
+
+                        }
+
+                        @Override
+                        public void OnSuccess() {
+
+                        }
+
+                        @Override
+                        public void OnFailure() {
+
+                        }
+                    });
+
+                    for (Class userClass : user.getClasses()){
+                        userClass.setUserTappedIn(false);
+                    }
+                    isNewDay = false;
+                }
+
+                attendanceManager.updateUser(userId, user);
+
+                campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
+                int totalAttendanceOfClasses = 0;
+                for (String key : classAttendanceDaysCheck.keySet()){
+                    totalAttendanceOfClasses += calculateAttendance(classAttendanceDaysCheck.get(key));
+                }
+                classAttendance = totalAttendanceOfClasses/classAttendanceDaysCheck.size();
+
+                attendanceBundle = new Bundle();
+                attendanceBundle.putString("user name", user.getName());
+                attendanceBundle.putString("user id", userId);
+                attendanceBundle.putInt("class attendance", classAttendance);
+                attendanceBundle.putInt("campus attendance", campusAttendance);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainScreenFragment mainScreenFragment = new MainScreenFragment();
+                        mainScreenFragment.setArguments(attendanceBundle);
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.add(R.id.main_frag, mainScreenFragment, "");
+                        fragmentTransaction.commit();                    }
+                }, 1000);
+            }
+
+            @Override
+            public void OnFailure() {
+
+            }
+        });
+
+//        campusAttendanceDaysCheck.put("01/01/2019", null);
+//        campusAttendanceDaysCheck.put("02/01/2019", null);
+//        classAttendanceDaysCheck.get("CP3408-Lecture").put("02/01/2019" , null);
+//        classAttendanceDaysCheck.get("CP3408-Practical").put("03/01/2019" , null);
+
+
 //        LocalDate startDate = LocalDate.parse(this.startDate, formatter);
 //        LocalDate endDate = LocalDate.parse(this.endDate, formatter);
 //        LocalDate currentDate = LocalDate.parse("01/01/2019", formatter);
@@ -178,7 +272,7 @@ public class MainMenuActivity extends AppCompatActivity implements
 //            }
 //        }
 
-        saveHashMap();
+//        saveHashMap();
 
 //        for (String name : classAttendanceDaysCheck.keySet()){
 //            System.out.println(name + ": " + classAttendanceDaysCheck.get(name));
@@ -205,24 +299,6 @@ public class MainMenuActivity extends AppCompatActivity implements
         medicalLeave = findViewById(R.id.medical_leave);
         settings = findViewById(R.id.settings);
 
-        campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
-        int totalAttendanceOfClasses = 0;
-        for (String key : classAttendanceDaysCheck.keySet()){
-            totalAttendanceOfClasses += calculateAttendance(classAttendanceDaysCheck.get(key));
-        }
-        classAttendance = totalAttendanceOfClasses/classAttendanceDaysCheck.size();
-
-        bundle = new Bundle();
-        bundle.putInt("class attendance", classAttendance);
-        bundle.putInt("campus attendance", campusAttendance);
-
-        MainScreenFragment mainScreenFragment = new MainScreenFragment();
-        mainScreenFragment.setArguments(bundle);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.main_frag, mainScreenFragment, "");
-        fragmentTransaction.commit();
-
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -234,7 +310,7 @@ public class MainMenuActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 CheckMyAttendanceFragment checkMyAttendanceFragment = new CheckMyAttendanceFragment();
-                checkMyAttendanceFragment.setArguments(bundle);
+                checkMyAttendanceFragment.setArguments(attendanceBundle);
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.popBackStack();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -256,15 +332,17 @@ public class MainMenuActivity extends AppCompatActivity implements
         });
     }
 
-    private void newDayUpdateAttendance(HashMap<String, Boolean> attendanceDaysCheck){
+    private void newDayUpdateAttendance(HashMap<String, String> attendanceDaysCheck){
         String mostRecentDate = getMostRecentDateString(attendanceDaysCheck);
         if (attendanceDaysCheck.containsKey(currentDateString) &&
                 attendanceDaysCheck.containsKey(mostRecentDate)){
             for (LocalDate date = LocalDate.parse(mostRecentDate, formatter).plusDays(1);
                  date.isBefore(currentDate); date = date.plusDays(1)) {
-                if (attendanceDaysCheck.get(date.format(formatter)) == null &&
-                        attendanceDaysCheck.containsKey(date.format(formatter))) {
-                    attendanceDaysCheck.put(date.format(formatter), false);
+                if ( attendanceDaysCheck.containsKey(date.format(formatter))) {
+                    if (attendanceDaysCheck.get(date.format(formatter)).equals("Null")) {
+                        attendanceDaysCheck.put(date.format(formatter), "False");
+                        isNewDay = true;
+                    }
                 }
             }
         }
@@ -272,9 +350,11 @@ public class MainMenuActivity extends AppCompatActivity implements
                 attendanceDaysCheck.containsKey(mostRecentDate)){
             for (LocalDate date = LocalDate.parse(mostRecentDate, formatter).plusDays(1);
                  date.isBefore(currentDate); date = date.plusDays(1)) {
-                if (attendanceDaysCheck.get(date.format(formatter)) == null &&
-                        attendanceDaysCheck.containsKey(date.format(formatter))) {
-                    attendanceDaysCheck.put(date.format(formatter), false);
+                if (attendanceDaysCheck.containsKey(date.format(formatter))) {
+                    if (attendanceDaysCheck.get(date.format(formatter)).equals("Null")) {
+                        attendanceDaysCheck.put(date.format(formatter), "False");
+                        isNewDay = true;
+                    }
                 }
             }
         }
@@ -283,23 +363,25 @@ public class MainMenuActivity extends AppCompatActivity implements
             mostRecentDate = getFirstDateOfDaysCheck(attendanceDaysCheck);
             for (LocalDate date = LocalDate.parse(mostRecentDate, formatter);
                  date.isBefore(currentDate); date = date.plusDays(1)) {
-                if (attendanceDaysCheck.get(date.format(formatter)) == null &&
-                        attendanceDaysCheck.containsKey(date.format(formatter))) {
-                    attendanceDaysCheck.put(date.format(formatter), false);
+                if ( attendanceDaysCheck.containsKey(date.format(formatter))) {
+                    if (attendanceDaysCheck.get(date.format(formatter)).equals("Null")) {
+                        attendanceDaysCheck.put(date.format(formatter), "False");
+                        isNewDay = true;
+                    }
                 }
             }
         }
     }
 
-    private String getMostRecentDateString(HashMap<String, Boolean> attendanceDaysCheck){
+    private String getMostRecentDateString(HashMap<String, String> attendanceDaysCheck){
         ArrayList<String> daysAlreadyCheckAttendance = new ArrayList<>();
         for (String key : attendanceDaysCheck.keySet()){
-            if(attendanceDaysCheck.get(key) != null){
+            if(!attendanceDaysCheck.get(key).equals("Null")){
                 daysAlreadyCheckAttendance.add(key);
             }
         }
         Collections.sort(daysAlreadyCheckAttendance, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+            DateFormat f = new SimpleDateFormat("dd-MM-yyyy");
             @Override
             public int compare(String o1, String o2) {
                 try {
@@ -315,10 +397,10 @@ public class MainMenuActivity extends AppCompatActivity implements
         return null;
     }
 
-    private String getFirstDateOfDaysCheck(HashMap<String, Boolean> attendanceDaysCheck){
+    private String getFirstDateOfDaysCheck(HashMap<String, String> attendanceDaysCheck){
         ArrayList<String> sortedKeys = new ArrayList<>(attendanceDaysCheck.keySet());
         Collections.sort(sortedKeys, new Comparator<String>() {
-            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+            DateFormat f = new SimpleDateFormat("dd-MM-yyyy");
             @Override
             public int compare(String o1, String o2) {
                 try {
@@ -371,75 +453,54 @@ public class MainMenuActivity extends AppCompatActivity implements
     }
 
     public void upDateMainScreen(){
-        loadHashMap();
-//        daysTappedIn = 0;
-//        daysTappedInRequired = 0;
-//
-//        for (String name: campusAttendanceDaysCheck.keySet()){
-//            if (campusAttendanceDaysCheck.get(name) != null) {
-//                daysTappedInRequired += 1;
-//                if (campusAttendanceDaysCheck.get(name)) {
-//                    daysTappedIn += 1;
-//                }
-//            }
-//        }
+        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
+            @Override
+            public void OnStart() {
 
-        campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
-        int totalAttendanceOfClasses = 0;
-        for (String key : classAttendanceDaysCheck.keySet()){
-            totalAttendanceOfClasses += calculateAttendance(classAttendanceDaysCheck.get(key));
-        }
-        classAttendance = totalAttendanceOfClasses/classAttendanceDaysCheck.size();
+            }
 
-        bundle.putInt("class attendance", classAttendance);
-        bundle.putInt("campus attendance", campusAttendance);
+            @Override
+            public void OnSuccess(User user) {
+                campusAttendanceDaysCheck = user.getCampusAttendance();
+                for (Class userClass : user.getClasses()){
+                    classAttendanceDaysCheck.put(userClass.getClassID(), userClass.getAttendance());
+                }
 
-        MainScreenFragment mainScreenFragment = new MainScreenFragment();
-        mainScreenFragment.setArguments(bundle);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.main_frag, mainScreenFragment, "");
-        fragmentTransaction.commitAllowingStateLoss();
+                campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
+                int totalAttendanceOfClasses = 0;
+                for (String key : classAttendanceDaysCheck.keySet()){
+                    totalAttendanceOfClasses += calculateAttendance(classAttendanceDaysCheck.get(key));
+                }
+                classAttendance = totalAttendanceOfClasses/classAttendanceDaysCheck.size();
+
+                attendanceBundle.putInt("class attendance", classAttendance);
+                attendanceBundle.putInt("campus attendance", campusAttendance);
+
+                MainScreenFragment mainScreenFragment = new MainScreenFragment();
+                mainScreenFragment.setArguments(attendanceBundle);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frag, mainScreenFragment, "");
+                fragmentTransaction.commitAllowingStateLoss();
+            }
+
+            @Override
+            public void OnFailure() {
+
+            }
+        });
+
     }
 
-    public void saveHashMap(){
-        File file = new File(getDir("data", MODE_PRIVATE), "map");
-        try {
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-            outputStream.writeObject(campusAttendanceDaysCheck);
-            outputStream.writeObject(classAttendanceDaysCheck);
-            outputStream.writeObject(cp3408Lecture);
-            outputStream.writeObject(cp3408Practical);
-            outputStream.flush();
-            outputStream.close();
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
 
-    public void loadHashMap(){
-        File file = new File(getDir("data", MODE_PRIVATE), "map");
-        try {
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
-            campusAttendanceDaysCheck = (HashMap<String, Boolean>) inputStream.readObject();
-            classAttendanceDaysCheck = (HashMap<String, HashMap<String, Boolean>>) inputStream.readObject();
-            cp3408Lecture = (HashMap<String, Boolean>) inputStream.readObject();
-            cp3408Practical = (HashMap<String, Boolean>) inputStream.readObject();
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private int calculateAttendance(HashMap<String, Boolean> daysCheck){
+    private int calculateAttendance(HashMap<String, String> daysCheck){
         daysTappedIn = 0;
         daysTappedInRequired = 0;
 
         for (String name: daysCheck.keySet()){
-            if (daysCheck.get(name) != null) {
+            if (!daysCheck.get(name).equals("Null")) {
                 daysTappedInRequired += 1;
-                if (daysCheck.get(name)) {
+                if (daysCheck.get(name).equals("True")) {
                     daysTappedIn += 1;
                 }
             }
@@ -460,15 +521,49 @@ public class MainMenuActivity extends AppCompatActivity implements
 
         @Override
         public void onReceive(final Context context, Intent intent) {
-            attendanceManager.tapOut(userIdForTesting, new AttendanceManager.OnTapOutListener() {
+            attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
                 @Override
                 public void OnStart() {
 
                 }
 
                 @Override
-                public void OnSuccess() {
+                public void OnSuccess(User user) {
+                    attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
+                        @Override
+                        public void OnStart() {
 
+                        }
+
+                        @Override
+                        public void OnSuccess() {
+
+                        }
+
+                        @Override
+                        public void OnFailure() {
+
+                        }
+                    });
+
+                    currentDate = LocalDate.now();
+                    currentDateString = currentDate.format(formatter);
+                    newDayUpdateAttendance(user.getCampusAttendance());
+                    for (Class userClass : user.getClasses()){
+                        newDayUpdateAttendance(userClass.getAttendance());
+                        userClass.setUserTappedIn(false);
+                    }
+                    attendanceManager.updateUser(userId, user);
+
+                    isNewDay = false;
+
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            upDateMainScreen();
+                        }
+                    }, 1000);
                 }
 
                 @Override
@@ -476,13 +571,6 @@ public class MainMenuActivity extends AppCompatActivity implements
 
                 }
             });
-            currentDate = LocalDate.now();
-            currentDateString = currentDate.format(formatter);
-            newDayUpdateAttendance(campusAttendanceDaysCheck);
-            for (String key : classAttendanceDaysCheck.keySet()){
-                newDayUpdateAttendance(classAttendanceDaysCheck.get(key));
-            }
-            upDateMainScreen();
         }
     }
 
@@ -494,8 +582,6 @@ public class MainMenuActivity extends AppCompatActivity implements
     }
 
     public void sendEmail() {
-
-
         Intent data=new Intent(Intent.ACTION_SENDTO);
         data.setData(Uri.parse("mailto:studentservices-singapore@jcu.edu.au"));
         data.putExtra(Intent.EXTRA_SUBJECT, "");

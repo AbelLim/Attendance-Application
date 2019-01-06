@@ -1,6 +1,7 @@
 package com.example.arx8l.attendenceapp;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +12,12 @@ public class User {
     private String loginID;
     private String password;
     private Boolean isTappedIn;
+    private Boolean isStudent;
 
     private String tapInTime;
-    private Map<String, Boolean> campusAttendance = new HashMap<>();
+    private HashMap<String, String> campusAttendance = new HashMap<>();
+    private ArrayList<Class> classes = new ArrayList<>();
+
 
     public User(){}
 
@@ -72,17 +76,37 @@ public class User {
 
     public String getTapInTime(){return tapInTime;}
 
-    public Map<String, Boolean> getCampusAttendance() {
+    public HashMap<String, String> getCampusAttendance() {
         return campusAttendance;
     }
 
-    public void setCampusAttendance(Map<String, Boolean> campusAttendance) {
+    public void setCampusAttendance(HashMap<String, String> campusAttendance) {
         this.campusAttendance = campusAttendance;
     }
 
-    public void putCampusAttendance(String date, Boolean isPresent)
+    public void putCampusAttendance(String date, String isPresent)
     {
         String mDate = date.replace('/','-');
         campusAttendance.put(mDate, isPresent);
+    }
+
+    public ArrayList<Class> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(ArrayList<Class> classes) {
+        this.classes = classes;
+    }
+
+    public void putClass(Class userClass){
+        classes.add(userClass);
+    }
+
+    public Boolean getIsStudent() {
+        return isStudent;
+    }
+
+    public void setIsStudent(Boolean isStudent) {
+        this.isStudent = isStudent;
     }
 }
