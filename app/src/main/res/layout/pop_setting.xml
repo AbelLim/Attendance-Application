@@ -30,36 +30,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
             android:layout_toRightOf="@+id/img_notify"
-            android:text="Sound and Notification" />
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/layout_reminders"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
-
-        <ImageView
-            android:id="@+id/img_reminders"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_centerVertical="true"
-            android:background="@drawable/ic_reminder" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:layout_toRightOf="@+id/img_reminders"
-            android:text="Reminders" />
+            android:text="Sound" />
 
         <Switch
             android:layout_width="wrap_content"
@@ -90,11 +61,6 @@
             android:layout_toRightOf="@+id/img_contacts"
             android:text="Contact Us" />
 
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -119,10 +85,5 @@
             android:layout_toRightOf="@+id/img_log_out"
             android:text="Logout" />
 
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
     </RelativeLayout>
 </LinearLayout>
