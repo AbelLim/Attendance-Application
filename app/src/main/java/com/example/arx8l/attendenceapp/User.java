@@ -71,7 +71,7 @@ public class User {
     }
 
     public void setTapInTime() {
-        this.tapInTime = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+        this.tapInTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
     public String getTapInTime(){return tapInTime;}

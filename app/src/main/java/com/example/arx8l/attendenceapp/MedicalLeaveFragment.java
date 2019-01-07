@@ -1,12 +1,9 @@
 package com.example.arx8l.attendenceapp;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,10 +14,8 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.Calendar;
 
 import static android.app.Activity.RESULT_OK;
@@ -34,6 +29,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
     private int mMonth;
     private int mDay;
     private String userID;
+    private String leaveDate;
 
     private int PICK_IMAGE_REQUEST;
     private Uri attachedFile;
@@ -51,12 +47,12 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
     }
 
     private void initView(View view) {
-        LinearLayout llDate = view.findViewById(R.id.ll_date);
+        Button btnDate = view.findViewById(R.id.btn_date);
         Button btSubmit = view.findViewById(R.id.bt_submit);
         Button btPhoto = view.findViewById(R.id.bt_photo);
         et_cer = view.findViewById(R.id.et_cer);
         et_reason = view.findViewById(R.id.et_reason);
-        llDate.setOnClickListener(this);
+        btnDate.setOnClickListener(this);
         btSubmit.setOnClickListener(this);
         btPhoto.setOnClickListener(this);
     }
@@ -67,7 +63,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
             case R.id.bt_photo:
                 selectImage();
                 break;
-            case R.id.ll_date:
+            case R.id.btn_date:
                 showTime();
                 break;
             case R.id.bt_submit:
@@ -84,7 +80,8 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
+                leaveDate = Integer.toString(year) + "/" + Integer.toString(month+1) + "/" + Integer.toString(dayOfMonth);
+                Toast.makeText(view.getContext(), leaveDate, Toast.LENGTH_SHORT).show();
             }
         },mYear,mMonth,mDay);
 
@@ -115,22 +112,38 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         String certificateNumber = et_cer.getText().toString();
         String additionalComment = et_reason.getText().toString();
 
+        if(certificateNumber=="" || attachedFile==null || leaveDate =="" || additionalComment==null)
+        {
+            Toast.makeText(this.getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        }
 
-        lm.postLeaveApplication(userID, certificateNumber, attachedFile, additionalComment, new LeaveManager.PostLeaveApplicationListener() {
-            @Override
-            public void OnStart() {
-                Toast.makeText(view.getContext(), "Uploading files...", Toast.LENGTH_SHORT).show();
-            }
+        else
+        {
+            lm.postLeaveApplication(userID, certificateNumber, attachedFile, leaveDate, additionalComment, new LeaveManager.PostLeaveApplicationListener() {
+                @Override
+                public void OnStart() {
+                    Toast.makeText(view.getContext(), "Uploading files...", Toast.LENGTH_SHORT).show();
+                }
 
-            @Override
-            public void OnSuccess() {
-                startActivity(new Intent(getActivity(),SuccessActivity.class));
-            }
+                @Override
+                public void OnSuccess() {
+                    clearFields();
+                    startActivity(new Intent(getActivity(),SuccessActivity.class));
+                }
 
-            @Override
-            public void OnFailure() {
-                Toast.makeText(view.getContext(), "Upload failed", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void OnFailure() {
+                    Toast.makeText(view.getContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void clearFields()
+    {
+        et_cer.setText("");
+        et_reason.setText("");
+        attachedFile = null;
+        leaveDate ="";
     }
 }

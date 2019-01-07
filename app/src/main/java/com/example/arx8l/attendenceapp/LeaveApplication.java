@@ -5,15 +5,17 @@ public class LeaveApplication
     private String userID;
     private String key;
     private String certificateNumber;
+    private String leaveDate;
     private String additionalComment;
 
     public LeaveApplication(){}
 
-    public LeaveApplication(String userID, String key, String certificateNumber, String additionalComment)
+    public LeaveApplication(String userID, String key, String certificateNumber, String leaveDate, String additionalComment)
     {
         this.userID = userID;
         this.key = key;
         this.certificateNumber = certificateNumber;
+        this.leaveDate = leaveDate;
         this.additionalComment = additionalComment;
     }
 
@@ -47,5 +49,13 @@ public class LeaveApplication
 
     public void setAdditionalComment(String additionalComment) {
         this.additionalComment = additionalComment;
+    }
+
+    public String getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(String leaveDate) {
+        this.leaveDate = leaveDate;
     }
 }
