@@ -1,15 +1,26 @@
 package com.example.arx8l.attendenceapp;
 
+import android.*;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -57,7 +68,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
         ClassAttendanceFragment.OnFragmentInteractionListener,
         CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnAttendanceChangeListener ,
-        DetailClassAttendanceFragment.OnFragmentInteractionListener{
+        DetailClassAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnRegisterNotificationListener{
 
     private Bundle attendanceBundle;
     private int classAttendance;
@@ -82,6 +93,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     private String userIdForTesting = "12345678";
     private String userId;
     private User userInfo;
+    private AlarmManager alarmManager;
 
     
     ImageView settings;
@@ -90,6 +102,8 @@ public class MainMenuActivity extends AppCompatActivity implements
     ImageView medicalLeave;
 
     AttendanceManager attendanceManager;
+    PendingIntent pendingIntent;
+    PendingIntent pendingIntent1;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 
@@ -97,6 +111,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+        createNotificationChannel();
         getSupportActionBar().hide();
 
         campusAttendanceDaysCheck = new HashMap<String, String>();
@@ -106,12 +121,10 @@ public class MainMenuActivity extends AppCompatActivity implements
 
 
         attendanceManager = new AttendanceManager();
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         //Get User info from server.
         requestUserInfo();
-
-//        loadHashMap();;
-
 
         registerReceiver(mDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
@@ -175,7 +188,8 @@ public class MainMenuActivity extends AppCompatActivity implements
                     newDayUpdateAttendance(userClass.getAttendance());
                 }
 //                user.getCampusAttendance().put("07-01-2019", "Null");
-//                user.getCampusAttendance().put("08-01-2019", "Null");
+                user.getCampusAttendance().put("08-01-2019", "Null");
+                user.setTappedIn(false);
 //                user.getCampusAttendance().put("09-01-2019", "Null");
 //                user.getClasses().get(0).putAttendance("09-01-2019", "Null");
 //                user.getClasses().get(1).putAttendance("10-01-2019", "Null");
@@ -223,6 +237,7 @@ public class MainMenuActivity extends AppCompatActivity implements
                 attendanceBundle.putString("user id", userId);
                 attendanceBundle.putInt("class attendance", classAttendance);
                 attendanceBundle.putInt("campus attendance", campusAttendance);
+                attendanceBundle.putSerializable("class days check", classAttendanceDaysCheck);
 
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -325,8 +340,9 @@ public class MainMenuActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
                 FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.popBackStack();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
+                fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "").addToBackStack(null);
                 fragmentTransaction.commit();
             }
         });
@@ -434,11 +450,29 @@ public class MainMenuActivity extends AppCompatActivity implements
         });
     }
 
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Test Channel";
+            String description = "This is only for testing";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("testChannel", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
     @Override
     public void onFragmentInteraction(Uri uri) {
 
 
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -517,6 +551,12 @@ public class MainMenuActivity extends AppCompatActivity implements
 
     private final MyDateChangeReceiver mDateReceiver = new MyDateChangeReceiver();
 
+    @Override
+    public void passPendingIntents(ArrayList<PendingIntent> pendingIntents) {
+        pendingIntent = pendingIntents.get(0);
+        pendingIntent1 = pendingIntents.get(1);
+    }
+
     public class MyDateChangeReceiver extends BroadcastReceiver {
 
         @Override
@@ -573,7 +613,6 @@ public class MainMenuActivity extends AppCompatActivity implements
             });
         }
     }
-
 
     private void call(String phone) {
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
@@ -638,6 +677,19 @@ public class MainMenuActivity extends AppCompatActivity implements
 
         View view = LayoutInflater.from(this).inflate(R.layout.pop_setting, null);
         RelativeLayout contacts = view.findViewById(R.id.layout_contacts);
+        RelativeLayout logout = view.findViewById(R.id.layout_log_out);
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (pendingIntent!=null && pendingIntent1 != null){
+                    pendingIntent.cancel();
+                    pendingIntent1.cancel();
+                    alarmManager.cancel(pendingIntent);
+                    alarmManager.cancel(pendingIntent1);
+                }
+            }
+        });
 
         contacts.setOnClickListener(new View.OnClickListener() {
             @Override
