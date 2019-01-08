@@ -27,7 +27,11 @@
         <activity android:name=".QRCodeScanner" />
 
         <service android:name=".BroadcastService" />
-
+        <receiver
+            android:name=".NotificationReceiver"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
         <activity android:name=".SuccessActivity"/>
         <activity android:name=".MainMenuActivity">
         </activity>

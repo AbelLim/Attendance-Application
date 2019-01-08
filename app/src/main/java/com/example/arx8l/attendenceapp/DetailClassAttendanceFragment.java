@@ -10,6 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -29,8 +33,14 @@ public class DetailClassAttendanceFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private HashMap<String, HashMap<String, String>> classAttendanceDaysCheck;
+    private ArrayList<String> classNames;
 
     private OnFragmentInteractionListener mListener;
+
+    TextView className1;
+    TextView leavesLeft1;
+    TextView absence1;
 
     public DetailClassAttendanceFragment() {
         // Required empty public constructor
@@ -72,8 +82,30 @@ public class DetailClassAttendanceFragment extends Fragment {
       // set icon 2 image animation for detailed attendance so it flips back to class Attendance.
         View myFragmentView = inflater.inflate(R.layout.fragment_detailed_class_attendance,
                 container, false);
+
+        if (getArguments() != null) {
+            classAttendanceDaysCheck = (HashMap<String, HashMap<String,String>>) getArguments().getSerializable("class days check");
+        }
+
+        classNames = new ArrayList<>();
+
+        leavesLeft1 = myFragmentView.findViewById(R.id.leaves_left_1);
+        absence1 = myFragmentView.findViewById(R.id.absence_1);
+        className1 = myFragmentView.findViewById(R.id.class_name_1);
+
+        for (String classId: classAttendanceDaysCheck.keySet()){
+            if(!classNames.contains(classId.substring(0,6))){
+                classNames.add(classId.substring(0,6));
+            }
+        }
+
+        className1.setText(classNames.get(0).replaceAll("(?<=\\D)(?=\\d)"," "));
+        leavesLeft1.setText(String.valueOf(calculateClassLeavesLeft(classNames.get(0))));
+        absence1.setText(String.valueOf(getClassDaysAbsence(classNames.get(0))));
+
         ImageView info2;
         info2 = myFragmentView.findViewById(R.id.info_2);
+
         info2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,9 +126,52 @@ public class DetailClassAttendanceFragment extends Fragment {
         });
 
         return myFragmentView;
-
     }
 
+    public int calculateClassLeavesLeft(String className){
+        int totalLeavesLeft = 0;
+        for (String classId : classAttendanceDaysCheck.keySet()){
+            if (classId.substring(0, 6).equals(className)){
+                totalLeavesLeft += calculateAttendance(classAttendanceDaysCheck.get(classId));
+            }
+        }
+        return totalLeavesLeft/2;
+    }
+
+    private int calculateAttendance(HashMap<String, String> daysCheck){
+        int daysTappedIn = 0;
+        int daysTappedInRequired = 0;
+
+        for (String name: daysCheck.keySet()){
+            if (!daysCheck.get(name).equals("Null")) {
+                daysTappedInRequired += 1;
+                if (daysCheck.get(name).equals("True")) {
+                    daysTappedIn += 1;
+                }
+            }
+        }
+        return (int) (((float) daysTappedIn/ (float) daysTappedInRequired) * 100);
+    }
+
+    private int getClassDaysAbsence(String className){
+        int classDaysAbsence = 0;
+        for (String classId : classAttendanceDaysCheck.keySet()){
+            if (classId.substring(0, 6).equals(className)){
+                classDaysAbsence += getDaysAbsence(classAttendanceDaysCheck.get(classId));
+            }
+        }
+        return classDaysAbsence;
+    }
+
+    private int getDaysAbsence(HashMap<String, String> daysCheck){
+        int daysAbsence = 0;
+        for (String date: daysCheck.keySet()){
+            if (daysCheck.get(date).equals("False")){
+                daysAbsence += 1;
+            }
+        }
+        return daysAbsence;
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

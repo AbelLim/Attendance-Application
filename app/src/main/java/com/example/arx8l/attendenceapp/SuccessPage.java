@@ -9,5 +9,6 @@ public class SuccessPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.success_layout);
+        getSupportActionBar().hide();
     }
 }
