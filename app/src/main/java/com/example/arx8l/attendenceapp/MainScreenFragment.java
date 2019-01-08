@@ -3,7 +3,9 @@ package com.example.arx8l.attendenceapp;
 import android.*;
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,6 +20,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -89,7 +92,6 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     private OnFragmentInteractionListener mListener;
 
     Button tapOutBtt;
-    RelativeLayout classAtt;
     LinearLayout countdownTimerLayout;
     TextView countDownTimerText;
     TextView campusPercentageText;
@@ -105,6 +107,8 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     User u;
     Location userLocation;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    PendingIntent pendingIntent;
+    PendingIntent pendingIntent1;
 
     private long mTimeLeftInMillis = 30000;
     private long timeUserTappedIn;
@@ -120,6 +124,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     private String currentDateString;
     private String currentTimeString;
     private ArrayList<Class> classes;
+    private ArrayList<PendingIntent> pendingIntents;
     private Class cp3408L;
     private Class cp3408P;
 
@@ -127,6 +132,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     private LatLng sw = new LatLng(1.315058, 103.875267);
     private LatLngBounds JCU = new LatLngBounds(sw, ne);
     private LocationManager locationManager;
+    private AlarmManager alarmManager;
 
 
     public MainScreenFragment() {
@@ -166,14 +172,14 @@ public class MainScreenFragment extends Fragment implements LocationListener{
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
+        pendingIntents = new ArrayList<>();
         classes = new ArrayList<>();
 
-//        cp3408L = new Class("CP3408-Lecture", "14:00", "15:50", false);
-//        cp3408P = new Class("CP3408-Practical", "13:00", "14:50", false);
-//
-//        classes.add(cp3408L);
-//        classes.add(cp3408P);
+        // test outside 1.316671, 103.875865
+        // test inside 1.315759, 103.876270
 
+
+        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -191,7 +197,6 @@ public class MainScreenFragment extends Fragment implements LocationListener{
             campusAttendance = getArguments().getInt("campus attendance");
         }
 
-
         countdownTimerLayout = myFragmentView.findViewById(R.id.countdown_timer_layout);
 
         userNameText = myFragmentView.findViewById(R.id.user_name);
@@ -203,11 +208,17 @@ public class MainScreenFragment extends Fragment implements LocationListener{
         classPercentageText.setText(classAttendance + "%");
         classCircleProgressBar = myFragmentView.findViewById(R.id.class_circle_progress_bar);
         classCircleProgressBar.setProgress(classAttendance);
+        if (classAttendance < 90){
+            classCircleProgressBar.setColor(Color.parseColor("#ff6666"));
+        }
 
         campusPercentageText = myFragmentView.findViewById(R.id.campus_percentage);
         campusPercentageText.setText(campusAttendance + "%");
         campusCircleProgressBar = myFragmentView.findViewById(R.id.campus_circle_progress_bar);
         campusCircleProgressBar.setProgress(campusAttendance);
+        if(campusAttendance < 90){
+            campusCircleProgressBar.setColor(Color.parseColor("#ff6666"));
+        }
 
 
         tapInTapOut = getActivity().findViewById(R.id.tap_in_tap_out);
@@ -241,19 +252,6 @@ public class MainScreenFragment extends Fragment implements LocationListener{
 
         countDownTimerText = new TextView(getContext());
         countDownTimerText.setTextSize(24);
-
-//        classAtt = myFragmentView.findViewById(R.id.class_att);
-//        classAtt.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-//                fragmentTransaction.replace(R.id.main_frag, classAttendanceFragment, "");
-//                fragmentTransaction.commit();
-//            }
-//        });
 
 //        String text = "Tapping Out in:";
 //        SpannableString ss = new SpannableString(text);
@@ -320,7 +318,6 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     }
 
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -367,6 +364,12 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     }
 
 
+    public interface OnRegisterNotificationListener{
+        public void passPendingIntents(ArrayList<PendingIntent> pendingIntents);
+    }
+
+    OnRegisterNotificationListener registerNotificationListener;
+
     public interface OnAttendanceChangeListener {
         public void attendanceChange();
     }
@@ -379,6 +382,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
             attendanceChangeListener = (OnAttendanceChangeListener) context;
+            registerNotificationListener = (OnRegisterNotificationListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -480,7 +484,33 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                             e.printStackTrace();
                                         }
                                         timeUserTappedIn = date.getTime();
+
+                                        Intent notifyIntent = new Intent(getActivity(), NotificationReceiver.class);
+                                        notifyIntent.putExtra("notification type", "campus att almost");
+                                        pendingIntent = PendingIntent.getBroadcast
+                                                (getContext(), 0, notifyIntent, 0);
+                                        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                                SystemClock.elapsedRealtime() +
+                                                        ((mTimeLeftInMillis - (System.currentTimeMillis() - timeUserTappedIn)) - 15000),
+                                                pendingIntent);
+
+
+                                        Intent notifyIntent1 = new Intent(getContext(), NotificationReceiver.class);
+                                        notifyIntent1.putExtra("notification type", "campus att tap out");
+                                        pendingIntent1 = PendingIntent.getBroadcast
+                                                (getContext(), 1, notifyIntent1, PendingIntent.FLAG_UPDATE_CURRENT);
+                                        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                                SystemClock.elapsedRealtime() +
+                                                        ((mTimeLeftInMillis - (System.currentTimeMillis() - timeUserTappedIn))),
+                                                pendingIntent1);
+
                                         userTappedIn = u.getTappedIn();
+
+                                        pendingIntents.add(pendingIntent);
+                                        pendingIntents.add(pendingIntent1);
+
+                                        registerNotificationListener.passPendingIntents(pendingIntents);
+
                                         startTimer();
                                     }
 
@@ -815,15 +845,15 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     @Override
     public void onResume() {
         super.onResume();
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
-        }
+//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+//        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        locationManager.removeUpdates(this);
+//        locationManager.removeUpdates(this);
     }
 }

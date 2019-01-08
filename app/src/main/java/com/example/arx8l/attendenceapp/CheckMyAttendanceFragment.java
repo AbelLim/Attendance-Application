@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -35,6 +36,7 @@ public class CheckMyAttendanceFragment extends Fragment{
     private OnFragmentInteractionListener mListener;
     private String currentScreen = "";
 
+    ImageView tapInTapOut;
 //    SharedPreferences preferences;
 
 
