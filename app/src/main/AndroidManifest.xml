@@ -13,24 +13,27 @@
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <uses-library android:name="org.apache.http.legacy"
-            android:required="false"/>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"/>
+        <activity android:name=".LoginActivity" />
         <activity android:name=".QRCodeScanner" />
 
         <service android:name=".BroadcastService" />
 
-        <activity android:name=".SuccessActivity"/>
-        <activity android:name=".MainMenuActivity">
-        </activity>
-
+        <activity android:name=".SuccessActivity" />
+        <activity android:name=".MainMenuActivity" />
+        <activity
+            android:name=".leave_selection"
+            android:label="@string/title_activity_leave_selection"></activity>
     </application>
 
 </manifest>

@@ -319,17 +319,25 @@ public class MainMenuActivity extends AppCompatActivity implements
             }
         });
 
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_leave_selection);
 
-        medicalLeave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
-                fragmentTransaction.commit();
-            }
-        });
+            Intent intent = new Intent();
+            startActivity(intent);
+        }
+
+      //  medicalLeave.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+          //  public void onClick(View view) {
+            //    MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
+              //  FragmentManager fragmentManager = getSupportFragmentManager();
+                //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                //fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "");
+                //fragmentTransaction.commit();
+            //}
+        //});
+
     }
 
     private void newDayUpdateAttendance(HashMap<String, String> attendanceDaysCheck){
