@@ -11,7 +11,7 @@ public class LeaveManager
 
     public LeaveManager(){}
 
-    public void postLeaveApplication(String userID, String certificateNumber, Uri file, String leaveDate, String additionalComment, PostLeaveApplicationListener listener)
+    public void postLeaveApplication(String userID, String certificateNumber, Uri file, String startDate, String endDate, String additionalComment, PostLeaveApplicationListener listener)
     {
         DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference("leave-applications");
         String key = userDatabase.push().getKey();
@@ -24,7 +24,7 @@ public class LeaveManager
 
             @Override
             public void OnSuccess() {
-                LeaveApplication application = new LeaveApplication(userID, key, certificateNumber, leaveDate, additionalComment);
+                LeaveApplication application = new LeaveApplication(userID, key, certificateNumber, startDate, endDate, additionalComment);
                 if(key!=null)
                     userDatabase.child(key).setValue(application);
                 listener.OnSuccess();

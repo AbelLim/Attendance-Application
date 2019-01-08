@@ -29,7 +29,8 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
     private int mMonth;
     private int mDay;
     private String userID;
-    private String leaveDate;
+    private String startDate;
+    private String endDate;
 
     private int PICK_IMAGE_REQUEST;
     private Uri attachedFile;
@@ -42,7 +43,8 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         initView(view);
         Bundle args =getArguments();
         userID = args.getString("userID");
-
+        clearFields();
+        endDate = "TEST-DATE";
         return view;
     }
 
@@ -64,7 +66,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
                 selectImage();
                 break;
             case R.id.btn_date:
-                showTime();
+                showTime(true);
                 break;
             case R.id.bt_submit:
                 submitLeaveApplication();
@@ -72,7 +74,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         }
     }
 
-    private void showTime() {
+    private void showTime(boolean isStartDate) {
         Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
@@ -80,8 +82,11 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                leaveDate = Integer.toString(year) + "/" + Integer.toString(month+1) + "/" + Integer.toString(dayOfMonth);
-                Toast.makeText(view.getContext(), leaveDate, Toast.LENGTH_SHORT).show();
+                String date = Integer.toString(year) + "/" + Integer.toString(month+1) + "/" + Integer.toString(dayOfMonth);
+                if (isStartDate)
+                    startDate = date;
+                else
+                    endDate = date;
             }
         },mYear,mMonth,mDay);
 
@@ -112,14 +117,14 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         String certificateNumber = et_cer.getText().toString();
         String additionalComment = et_reason.getText().toString();
 
-        if(certificateNumber=="" || attachedFile==null || leaveDate =="" || additionalComment==null)
+        if(certificateNumber=="" || attachedFile==null || startDate=="" || endDate=="" || additionalComment==null)
         {
             Toast.makeText(this.getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
         }
 
         else
         {
-            lm.postLeaveApplication(userID, certificateNumber, attachedFile, leaveDate, additionalComment, new LeaveManager.PostLeaveApplicationListener() {
+            lm.postLeaveApplication(userID, certificateNumber, attachedFile, startDate, endDate, additionalComment, new LeaveManager.PostLeaveApplicationListener() {
                 @Override
                 public void OnStart() {
                     Toast.makeText(view.getContext(), "Uploading files...", Toast.LENGTH_SHORT).show();
@@ -144,6 +149,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         et_cer.setText("");
         et_reason.setText("");
         attachedFile = null;
-        leaveDate ="";
+        startDate ="";
+        endDate ="";
     }
 }
