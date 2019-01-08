@@ -1,10 +1,11 @@
+/*This class defines the User database object. It is used to contain user specific information.
+* Code by Abel and Tung*/
 package com.example.arx8l.attendenceapp;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 public class User {
     private String userID;
@@ -18,7 +19,7 @@ public class User {
     private HashMap<String, String> campusAttendance = new HashMap<>();
     private ArrayList<Class> classes = new ArrayList<>();
 
-
+    //Constructors
     public User(){}
 
     public User(String userID, String name, String loginID, String password)
@@ -30,6 +31,14 @@ public class User {
         this.isTappedIn = false;
     }
 
+    //This function appends a date and boolean to the HashMap used to track the user's attendance.
+    public void putCampusAttendance(String date, String isPresent)
+    {
+        String mDate = date.replace('/','-');
+        campusAttendance.put(mDate, isPresent);
+    }
+
+    //Getters and Setters
     public String getUserID() {
         return userID;
     }
@@ -70,6 +79,7 @@ public class User {
         isTappedIn = tappedIn;
     }
 
+    //This setter sets the tap in time to the current date and time.
     public void setTapInTime() {
         this.tapInTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
@@ -82,12 +92,6 @@ public class User {
 
     public void setCampusAttendance(HashMap<String, String> campusAttendance) {
         this.campusAttendance = campusAttendance;
-    }
-
-    public void putCampusAttendance(String date, String isPresent)
-    {
-        String mDate = date.replace('/','-');
-        campusAttendance.put(mDate, isPresent);
     }
 
     public ArrayList<Class> getClasses() {

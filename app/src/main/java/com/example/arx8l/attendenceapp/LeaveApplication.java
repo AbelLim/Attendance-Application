@@ -1,3 +1,5 @@
+/*This class defines database object LeaveApplication used when applying for medical leave.
+* Code by Abel*/
 package com.example.arx8l.attendenceapp;
 
 public class LeaveApplication
@@ -9,6 +11,7 @@ public class LeaveApplication
     private String endDate;
     private String additionalComment;
 
+    //Constructors
     public LeaveApplication(){}
 
     public LeaveApplication(String userID, String key, String certificateNumber, String startDate, String endDate, String additionalComment)
@@ -21,6 +24,8 @@ public class LeaveApplication
         this.additionalComment = additionalComment;
     }
 
+
+    //Getters and Setters
     public String getUserID() {
         return userID;
     }

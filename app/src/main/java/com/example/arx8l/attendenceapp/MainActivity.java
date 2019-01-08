@@ -1,15 +1,9 @@
+/*This activity is the landing page. It redirects the program into the next step. It is also marked to not be added to the program history stack*/
 package com.example.arx8l.attendenceapp;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Toast;
-
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 

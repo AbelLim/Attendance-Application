@@ -1,3 +1,6 @@
+/*This file manages the fragment to submit user's medical leave application.
+* Code by Abel and Jin Feng*/
+
 package com.example.arx8l.attendenceapp;
 
 import android.app.DatePickerDialog;
@@ -13,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -36,6 +38,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
     private Uri attachedFile;
     private LeaveManager lm = new LeaveManager();
 
+    //Tasks that are performed on the creation of this fragment.
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,6 +51,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         return view;
     }
 
+    //Initializes view elements
     private void initView(View view) {
         Button btnDate = view.findViewById(R.id.btn_date);
         Button btSubmit = view.findViewById(R.id.bt_submit);
@@ -59,6 +63,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         btPhoto.setOnClickListener(this);
     }
 
+    //Manages buttons on click.
     @Override
     public void onClick(View view) {
         switch (view.getId()){
@@ -74,6 +79,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    //Displays date picker dialogue to select date. isStartDate true to input start date, false to input end date.
     private void showTime(boolean isStartDate) {
         Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -81,8 +87,10 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         mDay = c.get(Calendar.DAY_OF_MONTH);
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity() , new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                String date = Integer.toString(year) + "/" + Integer.toString(month+1) + "/" + Integer.toString(dayOfMonth);
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
+            {
+                //Formats values into a yyyy-mm-dd format.
+                String date = String.format("%04d",year) + "/" + String.format("%02d",month+1) + "/" + String.format("%02d",dayOfMonth);
                 if (isStartDate)
                     startDate = date;
                 else
@@ -91,19 +99,20 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         },mYear,mMonth,mDay);
 
         datePickerDialog.show();
-
     }
 
+    //Starts image selector activity
     public void selectImage()
     {
         Intent intent = new Intent();
         //Select only image types
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        //Always show chooser
+        //Opens image selector. Results are returned in method onActivityResult
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
+    //Listens for results of image selector activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -112,11 +121,13 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
             attachedFile = data.getData();
     }
 
+    //Take inputs and submits them through a LeaveManager entity.
     public void submitLeaveApplication()
     {
         String certificateNumber = et_cer.getText().toString();
         String additionalComment = et_reason.getText().toString();
 
+        //Checks if all fields are filled
         if(certificateNumber=="" || attachedFile==null || startDate=="" || endDate=="" || additionalComment==null)
         {
             Toast.makeText(this.getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
@@ -124,6 +135,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
 
         else
         {
+            //Submits LeaveApplication
             lm.postLeaveApplication(userID, certificateNumber, attachedFile, startDate, endDate, additionalComment, new LeaveManager.PostLeaveApplicationListener() {
                 @Override
                 public void OnStart() {
@@ -132,6 +144,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
 
                 @Override
                 public void OnSuccess() {
+                    //Clears all fields once submission is complete.
                     clearFields();
                     startActivity(new Intent(getActivity(),SuccessActivity.class));
                 }
@@ -144,6 +157,7 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         }
     }
 
+    //Clears all fields
     private void clearFields()
     {
         et_cer.setText("");
