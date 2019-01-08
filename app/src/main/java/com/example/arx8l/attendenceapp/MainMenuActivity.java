@@ -341,6 +341,9 @@ public class MainMenuActivity extends AppCompatActivity implements
                 MedicalLeaveFragment medicalLeaveFragment = new MedicalLeaveFragment();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.popBackStack();
+                Bundle args = new Bundle();
+                args.putString("userID", userId);
+                medicalLeaveFragment.setArguments(args);
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.main_frag, medicalLeaveFragment, "").addToBackStack(null);
                 fragmentTransaction.commit();
