@@ -26,6 +26,10 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
     private View view;
     private EditText et_cer;
     private EditText et_reason;
+    private Button btnStartDate;
+    private Button btnEndDate;
+    private Button btPhoto;
+    private Button btSubmit;
 
     private int mYear;
     private int mMonth;
@@ -47,18 +51,19 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         Bundle args =getArguments();
         userID = args.getString("userID");
         clearFields();
-        endDate = "TEST-DATE";
         return view;
     }
 
     //Initializes view elements
     private void initView(View view) {
-        Button btnDate = view.findViewById(R.id.btn_date);
-        Button btSubmit = view.findViewById(R.id.bt_submit);
-        Button btPhoto = view.findViewById(R.id.bt_photo);
+        btnStartDate = view.findViewById(R.id.btn_startdate);
+        btnEndDate = view.findViewById(R.id.btn_enddate);
+        btPhoto = view.findViewById(R.id.bt_photo);
+        btSubmit = view.findViewById(R.id.bt_submit);
         et_cer = view.findViewById(R.id.et_cer);
         et_reason = view.findViewById(R.id.et_reason);
-        btnDate.setOnClickListener(this);
+        btnStartDate.setOnClickListener(this);
+        btnEndDate.setOnClickListener(this);
         btSubmit.setOnClickListener(this);
         btPhoto.setOnClickListener(this);
     }
@@ -70,8 +75,11 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
             case R.id.bt_photo:
                 selectImage();
                 break;
-            case R.id.btn_date:
+            case R.id.btn_startdate:
                 showTime(true);
+                break;
+            case R.id.btn_enddate:
+                showTime(false);
                 break;
             case R.id.bt_submit:
                 submitLeaveApplication();
@@ -92,9 +100,15 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
                 //Formats values into a yyyy-mm-dd format.
                 String date = String.format("%04d",year) + "/" + String.format("%02d",month+1) + "/" + String.format("%02d",dayOfMonth);
                 if (isStartDate)
+                {
                     startDate = date;
+                    btnStartDate.setText(startDate);
+                }
                 else
+                {
                     endDate = date;
+                    btnEndDate.setText(endDate);
+                }
             }
         },mYear,mMonth,mDay);
 
@@ -118,7 +132,10 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
+        {
             attachedFile = data.getData();
+            btPhoto.setText("Uploaded");
+        }
     }
 
     //Take inputs and submits them through a LeaveManager entity.
@@ -165,5 +182,8 @@ public class MedicalLeaveFragment extends Fragment implements View.OnClickListen
         attachedFile = null;
         startDate ="";
         endDate ="";
+        btnStartDate.setText("Select Here");
+        btnEndDate.setText("Select Here");
+        btPhoto.setText("Upload Photo");
     }
 }

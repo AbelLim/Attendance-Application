@@ -10,15 +10,33 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#BAFFFFFF"
-        />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:background="#BAFFFFFF" />
+
+    <TextView
+        android:id="@+id/header_leaveapplication"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="6dp"
+        android:autoText="false"
+        android:text="Leave Application"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/et_cer"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_below="@id/header_leaveapplication"
         android:layout_marginLeft="27dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="27dp"
         android:background="@drawable/et_bg"
         android:hint="Enter Certificate No."
@@ -33,7 +51,7 @@
         android:layout_height="50dp"
         android:layout_below="@id/et_cer"
         android:layout_marginLeft="27dp"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="27dp"
         android:background="@drawable/et_bg"
         android:gravity="center_vertical"
@@ -43,28 +61,61 @@
         android:textAlignment="center" />
 
     <LinearLayout
-        android:id="@+id/ll_date"
-        android:layout_below="@id/bt_photo"
+        android:id="@+id/ll_startdate"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="16dp"
+        android:layout_below="@id/bt_photo"
         android:layout_marginLeft="27dp"
-        android:background="@drawable/et_bg"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
             android:gravity="center_vertical"
-            android:text="Peroid of Absence" />
+            android:text="Start Date" />
 
         <Button
-            android:id="@+id/btn_date"
+            android:id="@+id/btn_startdate"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:gravity="center_vertical|center"
+            android:hint="select here"
+            android:paddingRight="8dp"
+            android:text="Select Here" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_enddate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/ll_startdate"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="27dp"
+        android:background="@drawable/et_bg"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="16dp"
+            android:gravity="center_vertical"
+            android:text="End Date" />
+
+        <Button
+            android:id="@+id/btn_enddate"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_alignEnd="@+id/ll_enddate"
             android:layout_weight="1"
             android:background="@null"
             android:gravity="center_vertical|center"
@@ -77,9 +128,9 @@
         android:id="@+id/et_reason"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:layout_below="@id/ll_date"
+        android:layout_below="@id/ll_enddate"
         android:layout_marginLeft="27dp"
-        android:layout_marginTop="46dp"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="27dp"
         android:background="@drawable/et_bg"
         android:gravity="start"
@@ -95,7 +146,7 @@
         android:layout_height="59dp"
         android:layout_below="@+id/et_reason"
         android:layout_marginLeft="40dp"
-        android:layout_marginTop="61dp"
+        android:layout_marginTop="28dp"
         android:layout_marginRight="27dp"
         android:background="@drawable/corner_submit"
         android:text="Submit"
