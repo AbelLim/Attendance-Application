@@ -1,6 +1,7 @@
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
@@ -39,6 +41,7 @@ public class CampusAttendanceFragment extends Fragment {
     CircularProgressBar campusCheckCircleBar;
     TextView campusCheckPercentage;
     TextView campusStatus;
+    ImageView attentionIcon;
 
     public CampusAttendanceFragment() {
         // Required empty public constructor
@@ -92,6 +95,8 @@ public class CampusAttendanceFragment extends Fragment {
         campusCheckCircleBar = myFragmentView.findViewById(R.id.campus_check_circle_bar);
         campusCheckPercentage = myFragmentView.findViewById(R.id.campus_check_percentage);
         campusStatus = myFragmentView.findViewById(R.id.campus_status);
+        attentionIcon = myFragmentView.findViewById(R.id.attention_icon_campus);
+        attentionIcon.setVisibility(View.INVISIBLE);
 
         campusAttendance = getArguments().getInt("campus attendance");
 
@@ -103,6 +108,8 @@ public class CampusAttendanceFragment extends Fragment {
         }
         else {
             campusStatus.setText("Your attendance must reach 90% to meet ICA's requirement");
+            campusCheckCircleBar.setColor(Color.parseColor("#ff6666"));
+            attentionIcon.setVisibility(View.VISIBLE);
         }
 
         return myFragmentView;

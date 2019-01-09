@@ -36,6 +36,10 @@ public class Class {
         return classID;
     }
 
+    public void setClassID(String classID) {
+        this.classID = classID;
+    }
+
     public void setUserTappedIn(boolean userTappedIn) {
         isUserTappedIn = userTappedIn;
     }

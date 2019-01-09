@@ -1,6 +1,7 @@
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,8 +42,10 @@ public class DetailClassAttendanceFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     TextView className1;
-    TextView leavesLeft1;
+    TextView attendance1;
     TextView absence1;
+    RoundCornerProgressBar progressBar1;
+    ImageView warning1;
 
     public DetailClassAttendanceFragment() {
         // Required empty public constructor
@@ -83,15 +88,20 @@ public class DetailClassAttendanceFragment extends Fragment {
         View myFragmentView = inflater.inflate(R.layout.fragment_detailed_class_attendance,
                 container, false);
 
+        myFragmentView.setCameraDistance(12000);
+
         if (getArguments() != null) {
             classAttendanceDaysCheck = (HashMap<String, HashMap<String,String>>) getArguments().getSerializable("class days check");
         }
 
         classNames = new ArrayList<>();
 
-        leavesLeft1 = myFragmentView.findViewById(R.id.leaves_left_1);
+        attendance1 = myFragmentView.findViewById(R.id.attendance_1);
         absence1 = myFragmentView.findViewById(R.id.absence_1);
         className1 = myFragmentView.findViewById(R.id.class_name_1);
+        progressBar1 = myFragmentView.findViewById(R.id.progress_1);
+        warning1 = myFragmentView.findViewById(R.id.warning_1);
+        warning1.setVisibility(View.INVISIBLE);
 
         for (String classId: classAttendanceDaysCheck.keySet()){
             if(!classNames.contains(classId.substring(0,6))){
@@ -99,9 +109,20 @@ public class DetailClassAttendanceFragment extends Fragment {
             }
         }
 
+        int subjectAttendance = calculateSubjectAttendance(classNames.get(0));
+
         className1.setText(classNames.get(0).replaceAll("(?<=\\D)(?=\\d)"," "));
-        leavesLeft1.setText(String.valueOf(calculateClassLeavesLeft(classNames.get(0))));
-        absence1.setText(String.valueOf(getClassDaysAbsence(classNames.get(0))));
+        attendance1.setText("Attendance: " + String.valueOf(subjectAttendance) + "%");
+        absence1.setText("Absence: " + String.valueOf(getSubjectDaysAbsence(classNames.get(0))));
+        progressBar1.setProgress(subjectAttendance);
+
+        if (subjectAttendance < 100 && subjectAttendance > 70){
+            progressBar1.setProgressColor(Color.parseColor("#ffcc00"));
+        }
+        else if (subjectAttendance <= 70){
+            progressBar1.setProgressColor(Color.parseColor("#ff0000"));
+            warning1.setVisibility(View.VISIBLE);
+        }
 
         ImageView info2;
         info2 = myFragmentView.findViewById(R.id.info_2);
@@ -128,17 +149,17 @@ public class DetailClassAttendanceFragment extends Fragment {
         return myFragmentView;
     }
 
-    public int calculateClassLeavesLeft(String className){
+    public int calculateSubjectAttendance(String className){
         int totalLeavesLeft = 0;
         for (String classId : classAttendanceDaysCheck.keySet()){
             if (classId.substring(0, 6).equals(className)){
-                totalLeavesLeft += calculateAttendance(classAttendanceDaysCheck.get(classId));
+                totalLeavesLeft += calculateClassAttendance(classAttendanceDaysCheck.get(classId));
             }
         }
         return totalLeavesLeft/2;
     }
 
-    private int calculateAttendance(HashMap<String, String> daysCheck){
+    private int calculateClassAttendance(HashMap<String, String> daysCheck){
         int daysTappedIn = 0;
         int daysTappedInRequired = 0;
 
@@ -153,17 +174,17 @@ public class DetailClassAttendanceFragment extends Fragment {
         return (int) (((float) daysTappedIn/ (float) daysTappedInRequired) * 100);
     }
 
-    private int getClassDaysAbsence(String className){
+    private int getSubjectDaysAbsence(String className){
         int classDaysAbsence = 0;
         for (String classId : classAttendanceDaysCheck.keySet()){
             if (classId.substring(0, 6).equals(className)){
-                classDaysAbsence += getDaysAbsence(classAttendanceDaysCheck.get(classId));
+                classDaysAbsence += getClassDaysAbsence(classAttendanceDaysCheck.get(classId));
             }
         }
         return classDaysAbsence;
     }
 
-    private int getDaysAbsence(HashMap<String, String> daysCheck){
+    private int getClassDaysAbsence(HashMap<String, String> daysCheck){
         int daysAbsence = 0;
         for (String date: daysCheck.keySet()){
             if (daysCheck.get(date).equals("False")){

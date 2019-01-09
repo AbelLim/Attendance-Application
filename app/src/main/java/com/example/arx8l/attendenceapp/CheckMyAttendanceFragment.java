@@ -32,6 +32,7 @@ public class CheckMyAttendanceFragment extends Fragment{
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    boolean currentScreenIsCampus = true;
 
     private OnFragmentInteractionListener mListener;
     private String currentScreen = "";
@@ -98,7 +99,7 @@ public class CheckMyAttendanceFragment extends Fragment{
                 fragmentTransaction.commit();
                 break;
             default:
-                fragmentTransaction.add(R.id.container_frag_att, classAttendanceFragment, "classTag");
+                fragmentTransaction.add(R.id.container_frag_att, campusAttendanceFragment, "classTag");
                 fragmentTransaction.commit();
                 break;
         }
@@ -107,47 +108,50 @@ public class CheckMyAttendanceFragment extends Fragment{
 
         myFragmentView.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
             public void onSwipeLeft() {
-                boolean currentScreenIsClass = true;
-                if(currentScreenIsClass){
-                    CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
-                    campusAttendanceFragment.setArguments(getArguments());
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
-                    fragmentTransaction.commit();
-                }
-                else {
-                    ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
-                    classAttendanceFragment.setArguments(getArguments());
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
-                    fragmentTransaction.commit();
-                }
-                Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
-
-            }
-
-
-            public void onSwipeRight() {
-                boolean currentScreenIsCampus = true;
                 if(currentScreenIsCampus){
                     ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
                     classAttendanceFragment.setArguments(getArguments());
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
                     fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
                     fragmentTransaction.commit();
+                    currentScreenIsCampus = false;
                 }
                 else {
                     CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
                     campusAttendanceFragment.setArguments(getArguments());
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
                     fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
                     fragmentTransaction.commit();
+                    currentScreenIsCampus = true;
                 }
-                Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
+            }
+
+
+            public void onSwipeRight() {
+                if(currentScreenIsCampus){
+                    ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
+                    classAttendanceFragment.setArguments(getArguments());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+                    fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
+                    fragmentTransaction.commit();
+                    currentScreenIsCampus = false;
+                }
+                else {
+                    CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
+                    campusAttendanceFragment.setArguments(getArguments());
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+                    fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
+                    fragmentTransaction.commit();
+                    currentScreenIsCampus = true;
+                }
 
             }
 
