@@ -35,6 +35,7 @@
         <activity android:name=".SuccessActivity"/>
         <activity android:name=".MainMenuActivity">
         </activity>
+        <activity android:name=".SuccessPage" />
 
     </application>
 

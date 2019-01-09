@@ -14,6 +14,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -27,9 +28,11 @@ import android.support.v4.app.Fragment;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -94,6 +97,7 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     Button tapOutBtt;
     LinearLayout countdownTimerLayout;
     TextView countDownTimerText;
+    TextView hourMinuteSecondText;
     TextView campusPercentageText;
     TextView classPercentageText;
     TextView userNameText;
@@ -251,13 +255,33 @@ public class MainScreenFragment extends Fragment implements LocationListener{
         });
 
         countDownTimerText = new TextView(getContext());
-        countDownTimerText.setTextSize(24);
+        hourMinuteSecondText = new TextView(getContext());
 
-//        String text = "Tapping Out in:";
-//        SpannableString ss = new SpannableString(text);
-//        ForegroundColorSpan fcsRed = new ForegroundColorSpan(Color.RED);
-//        ss.setSpan(fcsRed, 8, 11, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        tappingOut.setText(ss);
+        countDownTimerText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,1f));
+        hourMinuteSecondText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,1f));
+
+        countDownTimerText.setTextSize(20);
+        countDownTimerText.setTextColor(Color.BLACK);
+        countDownTimerText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        countDownTimerText.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+        countDownTimerText.setPadding(0,0,0,5);
+
+        hourMinuteSecondText.setTextSize(24);
+        hourMinuteSecondText.setTextColor(Color.BLACK);
+        hourMinuteSecondText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        hourMinuteSecondText.setPadding(0,0,0,5);
+
+        String cdtText = "Tapping Out in: ";
+        String hmsText = "          ";
+
+        SpannableString ss = new SpannableString(cdtText);
+        ForegroundColorSpan fcsRed = new ForegroundColorSpan(Color.RED);
+        ss.setSpan(fcsRed, 8, 11, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        countDownTimerText.setText(ss);
+        hourMinuteSecondText.setText(hmsText);
 
         tapOutBtt.setVisibility(View.GONE);
 
@@ -458,6 +482,9 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                             alertMessage("Date error");
                         }
                     } else if (campusAttendanceDaysCheck.get(currentDateString).equals("Null")) {
+                        Intent successIntent = new Intent(getContext(), SuccessPage.class);
+                        successIntent.putExtra("message", "You have successfully tapped in!");
+                        getActivity().startActivity(successIntent);
                         attendanceManager.tapIn(userId, new AttendanceManager.OnTapInListener() {
                             @Override
                             public void OnStart() {
@@ -475,8 +502,10 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                     @Override
                                     public void OnSuccess(User user) {
                                         u = user;
-                                        alertMessage("Successfully Tapped In!");
+//                                        alertMessage("Successfully Tapped In!");
+
                                         countdownTimerLayout.addView(countDownTimerText);
+                                        countdownTimerLayout.addView(hourMinuteSecondText);
                                         Date date = new Date();
                                         try {
                                             date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(u.getTapInTime());
@@ -542,6 +571,10 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                         LocalTime.parse(currentTimeString).
                                                 isBefore(LocalTime.parse(getClassTapOutEndTime(checkingClass.getEndTime())))) {
                                     if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
+                                        Intent successIntent = new Intent(getContext(), SuccessPage.class);
+                                        successIntent.putExtra("message",
+                                                "You have successfully tapped out for " + checkingClass.getClassID() + "!");
+                                        getActivity().startActivity(successIntent);
                                         attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
                                             @Override
                                             public void OnStart() {
@@ -562,7 +595,10 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                                     }
                                                 }
                                                 attendanceManager.updateUser(userId, user);
-                                                alertMessage("Successfully tapped out for " + checkingClass.getClassID());
+//                                                alertMessage("Successfully tapped out for " + checkingClass.getClassID());
+
+
+
                                                 Handler handler = new Handler();
                                                 handler.postDelayed(new Runnable() {
                                                     @Override
@@ -591,6 +627,10 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                         LocalTime.parse(currentTimeString).
                                                 isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
                                     if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
+                                        Intent successIntent = new Intent(getContext(), SuccessPage.class);
+                                        successIntent.putExtra("message",
+                                                "You have successfully tapped in for " + checkingClass.getClassID() + "!");
+                                        getActivity().startActivity(successIntent);
                                         attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
                                             @Override
                                             public void OnStart() {
@@ -610,7 +650,9 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                                     }
                                                 }
                                                 attendanceManager.updateUser(userId, user);
-                                                alertMessage("Successfully tapped in for " + checkingClass.getClassID());
+//                                                alertMessage("Successfully tapped in for " + checkingClass.getClassID());
+
+
                                             }
 
                                             @Override
@@ -648,6 +690,11 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                     LocalTime.parse(currentTimeString).
                                             isBefore(LocalTime.parse(getClassTapInEndTime(checkingClass.getStartTime())))) {
                                 if (attendanceDaysCheck.get(currentDateString).equals("Null")) {
+                                    Intent successIntent = new Intent(getContext(), SuccessPage.class);
+                                    successIntent.putExtra("message",
+                                            "You have successfully tapped in for " + checkingClass.getClassID() + "!");
+                                    getActivity().startActivity(successIntent);
+
                                     attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
                                         @Override
                                         public void OnStart() {
@@ -662,7 +709,9 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                                                 }
                                             }
                                             attendanceManager.updateUser(userId, user);
-                                            alertMessage("Successfully tapped in for " + checkingClass.getClassID());
+//                                            alertMessage("Successfully tapped in for " + checkingClass.getClassID());
+
+
                                             Handler handler = new Handler();
                                             handler.postDelayed(new Runnable() {
                                                 @Override
@@ -713,6 +762,9 @@ public class MainScreenFragment extends Fragment implements LocationListener{
     private void tapOutForCampus(String scanResult){
         if (scanResult.equals("JCU QR Code Attendance")) {
             if (campusAttendanceDaysCheck.get(currentDateString).equals("Null")) {
+                Intent successIntent = new Intent(getContext(), SuccessPage.class);
+                successIntent.putExtra("message", "You have successfully tapped out!");
+                getActivity().startActivity(successIntent);
                 attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
                     @Override
                     public void OnStart() {
@@ -731,7 +783,10 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                             public void OnSuccess(User user) {
                                 u = user;
                                 user.putCampusAttendance(currentDateString, "True");
-                                alertMessage("Successfully Tapped Out!");
+//                                alertMessage("Successfully Tapped Out!");
+
+
+
                                 attendanceManager.updateUser(userId, user);
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
@@ -804,14 +859,15 @@ public class MainScreenFragment extends Fragment implements LocationListener{
                 long minute = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished));
                 long second = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished));
 
-                String hms = String.format("Tapping Out in: " + "%02d:%02d:%02d", hour, minute, second);
-                countDownTimerText.setText(hms);//set text
+                String hms = String.format("  %02d:%02d:%02d", hour, minute, second);
+                hourMinuteSecondText.setText(hms);//set text
             }
 
             @Override
             public void onFinish() {
                 timerIsRunning = false;
                 countdownTimerLayout.removeView(countDownTimerText);
+                countdownTimerLayout.removeView(hourMinuteSecondText);
                 tapOutBtt.setVisibility(View.VISIBLE);
             }
         };

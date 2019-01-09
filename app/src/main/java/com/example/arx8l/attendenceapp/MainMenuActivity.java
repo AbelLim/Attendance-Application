@@ -188,11 +188,14 @@ public class MainMenuActivity extends AppCompatActivity implements
                     newDayUpdateAttendance(userClass.getAttendance());
                 }
 //                user.getCampusAttendance().put("07-01-2019", "Null");
-                user.getCampusAttendance().put("08-01-2019", "Null");
-                user.setTappedIn(false);
+//                user.getCampusAttendance().put("08-01-2019", "Null");
+//                user.setTappedIn(false);
 //                user.getCampusAttendance().put("09-01-2019", "Null");
 //                user.getClasses().get(0).putAttendance("09-01-2019", "Null");
+//                user.setIsStudent(true);
 //                user.getClasses().get(1).putAttendance("10-01-2019", "Null");
+//                user.getClasses().get(0).setClassID("CP3405-Lecture");
+//                user.getClasses().get(1).setClassID("CP3405-Practical");
 
                 campusAttendanceDaysCheck = user.getCampusAttendance();
                 for (Class userClass : user.getClasses()){

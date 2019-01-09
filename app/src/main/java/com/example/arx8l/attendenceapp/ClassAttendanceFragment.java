@@ -1,6 +1,7 @@
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -41,6 +42,7 @@ public class ClassAttendanceFragment extends Fragment {
     TextView classCheckPercentage;
     TextView classStatus;
     ImageView info1;
+    ImageView attentionIcon;
 
 
     public ClassAttendanceFragment() {
@@ -79,7 +81,7 @@ public class ClassAttendanceFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_class_attendance, container, false);
-
+        myFragmentView.setCameraDistance(12000);
         info1 = myFragmentView.findViewById(R.id.info_1);
         info1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +116,8 @@ public class ClassAttendanceFragment extends Fragment {
         classCheckCircleBar = myFragmentView.findViewById(R.id.class_check_circle_bar);
         classCheckPercentage = myFragmentView.findViewById(R.id.class_check_percentage);
         classStatus = myFragmentView.findViewById(R.id.class_status);
+        attentionIcon = myFragmentView.findViewById(R.id.attention_icon_class);
+        attentionIcon.setVisibility(View.INVISIBLE);
 
         classAttendance = getArguments().getInt("class attendance");
 
@@ -125,6 +129,8 @@ public class ClassAttendanceFragment extends Fragment {
         }
         else {
             classStatus.setText("Your attendance must reach 90% to meet ICA's requirement");
+            classCheckCircleBar.setColor(Color.parseColor("#ff6666"));
+            attentionIcon.setVisibility(View.VISIBLE);
         }
 
         return myFragmentView;
