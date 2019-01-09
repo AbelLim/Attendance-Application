@@ -47,6 +47,24 @@ public class DetailClassAttendanceFragment extends Fragment {
     RoundCornerProgressBar progressBar1;
     ImageView warning1;
 
+    TextView className2;
+    TextView attendance2;
+    TextView absence2;
+    RoundCornerProgressBar progressBar2;
+    ImageView warning2;
+
+    TextView className3;
+    TextView attendance3;
+    TextView absence3;
+    RoundCornerProgressBar progressBar3;
+    ImageView warning3;
+
+    TextView className4;
+    TextView attendance4;
+    TextView absence4;
+    RoundCornerProgressBar progressBar4;
+    ImageView warning4;
+
     public DetailClassAttendanceFragment() {
         // Required empty public constructor
     }
@@ -103,25 +121,83 @@ public class DetailClassAttendanceFragment extends Fragment {
         warning1 = myFragmentView.findViewById(R.id.warning_1);
         warning1.setVisibility(View.INVISIBLE);
 
+        attendance2 = myFragmentView.findViewById(R.id.attendance_2);
+        absence2 = myFragmentView.findViewById(R.id.absence_2);
+        className2 = myFragmentView.findViewById(R.id.class_name_2);
+        progressBar2 = myFragmentView.findViewById(R.id.progress_2);
+        warning2 = myFragmentView.findViewById(R.id.warning_2);
+        warning2.setVisibility(View.INVISIBLE);
+
+        attendance3 = myFragmentView.findViewById(R.id.attendance_3);
+        absence3 = myFragmentView.findViewById(R.id.absence_3);
+        className3 = myFragmentView.findViewById(R.id.class_name_3);
+        progressBar3 = myFragmentView.findViewById(R.id.progress_3);
+        warning3 = myFragmentView.findViewById(R.id.warning_3);
+        warning3.setVisibility(View.INVISIBLE);
+
+        attendance4 = myFragmentView.findViewById(R.id.attendance_4);
+        absence4 = myFragmentView.findViewById(R.id.absence_4);
+        className4 = myFragmentView.findViewById(R.id.class_name_4);
+        progressBar4 = myFragmentView.findViewById(R.id.progress_4);
+        warning4 = myFragmentView.findViewById(R.id.warning_4);
+        warning4.setVisibility(View.INVISIBLE);
+
         for (String classId: classAttendanceDaysCheck.keySet()){
             if(!classNames.contains(classId.substring(0,6))){
                 classNames.add(classId.substring(0,6));
             }
         }
 
-        int subjectAttendance = calculateSubjectAttendance(classNames.get(0));
-
+        int subjectAttendance1 = calculateSubjectAttendance(classNames.get(0));
         className1.setText(classNames.get(0).replaceAll("(?<=\\D)(?=\\d)"," "));
-        attendance1.setText("Attendance: " + String.valueOf(subjectAttendance) + "%");
+        attendance1.setText("Attendance: " + String.valueOf(subjectAttendance1) + "%");
         absence1.setText("Absence: " + String.valueOf(getSubjectDaysAbsence(classNames.get(0))));
-        progressBar1.setProgress(subjectAttendance);
-
-        if (subjectAttendance < 100 && subjectAttendance > 70){
+        progressBar1.setProgress(subjectAttendance1);
+        if (subjectAttendance1 < 100 && subjectAttendance1 > 70){
             progressBar1.setProgressColor(Color.parseColor("#ffcc00"));
         }
-        else if (subjectAttendance <= 70){
+        else if (subjectAttendance1 <= 70){
             progressBar1.setProgressColor(Color.parseColor("#ff0000"));
             warning1.setVisibility(View.VISIBLE);
+        }
+
+        int subjectAttendance2 = calculateSubjectAttendance(classNames.get(1));
+        className2.setText(classNames.get(1).replaceAll("(?<=\\D)(?=\\d)"," "));
+        attendance2.setText("Attendance: " + String.valueOf(subjectAttendance2) + "%");
+        absence2.setText("Absence: " + String.valueOf(getSubjectDaysAbsence(classNames.get(1))));
+        progressBar2.setProgress(subjectAttendance2);
+        if (subjectAttendance2 < 100 && subjectAttendance2 > 70){
+            progressBar2.setProgressColor(Color.parseColor("#ffcc00"));
+        }
+        else if (subjectAttendance2 <= 70){
+            progressBar2.setProgressColor(Color.parseColor("#ff0000"));
+            warning2.setVisibility(View.VISIBLE);
+        }
+
+        int subjectAttendance3 = calculateSubjectAttendance(classNames.get(2));
+        className3.setText(classNames.get(2).replaceAll("(?<=\\D)(?=\\d)"," "));
+        attendance3.setText("Attendance: " + String.valueOf(subjectAttendance3) + "%");
+        absence3.setText("Absence: " + String.valueOf(getSubjectDaysAbsence(classNames.get(2))));
+        progressBar3.setProgress(subjectAttendance3);
+        if (subjectAttendance3 < 100 && subjectAttendance3 > 70){
+            progressBar3.setProgressColor(Color.parseColor("#ffcc00"));
+        }
+        else if (subjectAttendance3 <= 70){
+            progressBar3.setProgressColor(Color.parseColor("#ff0000"));
+            warning3.setVisibility(View.VISIBLE);
+        }
+
+        int subjectAttendance4 = calculateSubjectAttendance(classNames.get(3));
+        className4.setText(classNames.get(3).replaceAll("(?<=\\D)(?=\\d)"," "));
+        attendance4.setText("Attendance: " + String.valueOf(subjectAttendance4) + "%");
+        absence4.setText("Absence: " + String.valueOf(getSubjectDaysAbsence(classNames.get(3))));
+        progressBar4.setProgress(subjectAttendance4);
+        if (subjectAttendance4 < 100 && subjectAttendance4 > 70){
+            progressBar4.setProgressColor(Color.parseColor("#ffcc00"));
+        }
+        else if (subjectAttendance4 <= 70){
+            progressBar4.setProgressColor(Color.parseColor("#ff0000"));
+            warning4.setVisibility(View.VISIBLE);
         }
 
         ImageView info2;

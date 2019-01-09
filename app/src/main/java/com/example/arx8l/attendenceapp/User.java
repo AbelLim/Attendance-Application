@@ -31,6 +31,8 @@ public class User {
         this.isTappedIn = false;
     }
 
+    
+
     //This function appends a date and boolean to the HashMap used to track the user's attendance.
     public void putCampusAttendance(String date, String isPresent)
     {

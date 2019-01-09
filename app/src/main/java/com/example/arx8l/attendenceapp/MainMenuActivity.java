@@ -82,12 +82,12 @@ public class MainMenuActivity extends AppCompatActivity implements
     private int daysTappedInRequired;
     private String studyPeriodStartDateInString = "01-12-2018";
     private String studyPeriodEndDateInString = "01-02-2019";
-    private String startDate = "05/11/2018";
-    private String endDate = "02/02/2019";
-    private String startDateInStringCP3408L = "05-12-2018";
-    private String endDateInStringCP3408L = "06-02-2019";
-    private String startDateInStringCP3408P = "06-12-2018";
-    private String endDateInStringCP3408P = "07-02-2019";
+    private String startDate = "01-12-2018";
+    private String endDate = "01-03-2019";
+    private String startDateInStringCP3408L = "04-12-2018";
+    private String endDateInStringCP3408L = "05-03-2019";
+    private String startDateInStringCP3408P = "05-12-2018";
+    private String endDateInStringCP3408P = "06-03-2019";
     private LocalDate currentDate;
     private String currentDateString;
     private String userIdForTesting = "12345678";
@@ -131,50 +131,6 @@ public class MainMenuActivity extends AppCompatActivity implements
         currentDate = LocalDate.now();
         currentDateString = currentDate.format(formatter);
 
-//        LocalDate startDate = LocalDate.parse(studyPeriodStartDateInString, formatter);
-//        LocalDate endDate = LocalDate.parse(studyPeriodEndDateInString, formatter);
-//        LocalDate startDateCP3408L = LocalDate.parse(startDateInStringCP3408L, formatter);
-//        LocalDate endDateCP3408L = LocalDate.parse(endDateInStringCP3408L, formatter);
-//        LocalDate startDateCP3408P = LocalDate.parse(startDateInStringCP3408P, formatter);
-//        LocalDate endDateCP3408P = LocalDate.parse(endDateInStringCP3408P, formatter);
-
-//        for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
-//            if(!date.getDayOfWeek().name().equals("SATURDAY") && !date.getDayOfWeek().name().equals("SUNDAY")) {
-//                campusAttendanceDaysCheck.put(date.format(formatter), "Null");
-//            }
-//            System.out.println("Hey Hey Hey");
-//        }
-//
-//        for (LocalDate date = startDate; date.isBefore(currentDate); date = date.plusDays(1))
-//        {
-//            if(!date.getDayOfWeek().name().equals("SATURDAY") && !date.getDayOfWeek().name().equals("SUNDAY")) {
-//                int randNum = new Random().nextInt(2);
-//                if (randNum == 0) {
-//                    campusAttendanceDaysCheck.put(date.format(formatter), "False");
-//                } else if (randNum == 1) {
-//                    campusAttendanceDaysCheck.put(date.format(formatter), "True");
-//                }
-//            }
-//        }
-
-//        ArrayList<String> sortedKeys2 =
-//                new ArrayList<String>(cp3408Lecture.keySet());
-//        Collections.sort(sortedKeys2, new Comparator<String>() {
-//            DateFormat f = new SimpleDateFormat("dd-MM-yyyy");
-//            @Override
-//            public int compare(String o1, String o2) {
-//                try {
-//                    return f.parse(o1).compareTo(f.parse(o2));
-//                } catch (ParseException e) {
-//                    throw new IllegalArgumentException(e);
-//                }
-//            }
-//        });
-//
-//        for (String key: sortedKeys2){
-//            System.out.println(key + ": " + cp3408Lecture.get(key));
-//        }
-
         attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
             @Override
             public void OnStart() {
@@ -187,15 +143,6 @@ public class MainMenuActivity extends AppCompatActivity implements
                 for (Class userClass : user.getClasses()){
                     newDayUpdateAttendance(userClass.getAttendance());
                 }
-//                user.getCampusAttendance().put("07-01-2019", "Null");
-//                user.getCampusAttendance().put("08-01-2019", "Null");
-//                user.setTappedIn(false);
-//                user.getCampusAttendance().put("09-01-2019", "Null");
-//                user.getClasses().get(0).putAttendance("09-01-2019", "Null");
-//                user.setIsStudent(true);
-//                user.getClasses().get(1).putAttendance("10-01-2019", "Null");
-//                user.getClasses().get(0).setClassID("CP3405-Lecture");
-//                user.getClasses().get(1).setClassID("CP3405-Practical");
 
                 campusAttendanceDaysCheck = user.getCampusAttendance();
                 for (Class userClass : user.getClasses()){
@@ -694,6 +641,9 @@ public class MainMenuActivity extends AppCompatActivity implements
                     alarmManager.cancel(pendingIntent);
                     alarmManager.cancel(pendingIntent1);
                 }
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 

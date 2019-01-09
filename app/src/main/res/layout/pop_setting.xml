@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,14 +15,14 @@
     <RelativeLayout
         android:id="@+id/notify"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <ImageView
             android:id="@+id/img_notify"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_centerVertical="true"
             android:background="@drawable/ic_notify" />
 
@@ -28,28 +30,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="30dp"
             android:layout_toRightOf="@+id/img_notify"
-            android:text="Sound" />
+            android:text="Sound"
+            android:textSize="18sp" />
 
         <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:switchMinWidth="55dp"
+            android:textSize="14sp" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/layout_contacts"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <ImageView
             android:id="@+id/img_contacts"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_centerVertical="true"
             android:background="@drawable/ic_contact" />
 
@@ -57,23 +62,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="30dp"
             android:layout_toRightOf="@+id/img_contacts"
-            android:text="Contact Us" />
+            android:text="Contact Us"
+            android:textSize="18sp" />
 
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/layout_log_out"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <ImageView
             android:id="@+id/img_log_out"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_centerVertical="true"
             android:background="@drawable/ic_log_out" />
 
@@ -81,9 +87,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="30dp"
             android:layout_toRightOf="@+id/img_log_out"
-            android:text="Logout" />
+            android:text="Logout"
+            android:textSize="18sp" />
 
     </RelativeLayout>
 </LinearLayout>
+
