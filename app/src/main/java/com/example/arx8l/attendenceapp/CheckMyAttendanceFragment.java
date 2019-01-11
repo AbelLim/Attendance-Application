@@ -1,3 +1,5 @@
+/*This fragment is the check my attendance screen. it contains the container that can be switched to campus, class, detailed class attendance board
+* Code by Celine and Tung*/
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
@@ -35,7 +37,6 @@ public class CheckMyAttendanceFragment extends Fragment{
     boolean currentScreenIsCampus = true;
 
     private OnFragmentInteractionListener mListener;
-    private String currentScreen = "";
 
     ImageView tapInTapOut;
 //    SharedPreferences preferences;
@@ -78,9 +79,6 @@ public class CheckMyAttendanceFragment extends Fragment{
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_check_my_attendance, container, false);
 
-//        preferences = getActivity().getSharedPreferences("frag prefs", Context.MODE_PRIVATE);
-//        currentScreen = preferences.getString("current screen", "");
-
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -88,21 +86,8 @@ public class CheckMyAttendanceFragment extends Fragment{
         classAttendanceFragment.setArguments(getArguments());
         CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
         campusAttendanceFragment.setArguments(getArguments());
-
-        switch (currentScreen){
-            case "class attendance":
-                fragmentTransaction.add(R.id.container_frag_att, classAttendanceFragment, "classTag");
-                fragmentTransaction.commit();
-                break;
-            case "campus attendance":
-                fragmentTransaction.add(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
-                fragmentTransaction.commit();
-                break;
-            default:
-                fragmentTransaction.add(R.id.container_frag_att, campusAttendanceFragment, "classTag");
-                fragmentTransaction.commit();
-                break;
-        }
+        fragmentTransaction.add(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
+        fragmentTransaction.commit();
 
         // swipe left-right gesture for the campus and class attendance:
 
@@ -203,19 +188,5 @@ public class CheckMyAttendanceFragment extends Fragment{
     @Override
     public void onStop() {
         super.onStop();
-//        CampusAttendanceFragment testCampus = (CampusAttendanceFragment) getActivity()
-//                .getSupportFragmentManager().findFragmentByTag("campusTag");
-//        ClassAttendanceFragment testClass = (ClassAttendanceFragment) getActivity()
-//                .getSupportFragmentManager().findFragmentByTag("classTag");
-//
-//        if (testCampus!= null && testCampus.isVisible()){
-//            currentScreen = "campus attendance";
-//        }
-//        if (testClass != null && testClass.isVisible()){
-//            currentScreen = "class attendance";
-//        }
-//        SharedPreferences.Editor editor = preferences.edit();
-//        editor.putString("current screen", currentScreen);
-//        editor.apply();
     }
 }

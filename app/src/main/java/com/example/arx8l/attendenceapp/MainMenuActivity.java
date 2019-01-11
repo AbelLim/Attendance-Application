@@ -1,3 +1,6 @@
+/*This activity contains the bottom navigation menu, background image and the middle container that can be switched between different screens
+* Code by Tung*/
+
 package com.example.arx8l.attendenceapp;
 
 import android.*;
@@ -37,18 +40,6 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,31 +61,21 @@ public class MainMenuActivity extends AppCompatActivity implements
         CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnAttendanceChangeListener ,
         DetailClassAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnRegisterNotificationListener{
 
-    private Bundle attendanceBundle;
-    private int classAttendance;
-    private int campusAttendance;
+    //Contain user data to pass around different fragments
+    private Bundle userDataBundle;
+    private int classAttendancePercentage;
+    private int campusAttendancePercentage;
     private boolean isNewDay = false;
-    private HashMap<String, String> campusAttendanceDaysCheck;
-    private HashMap<String, HashMap<String, String>> classAttendanceDaysCheck;
-    private HashMap<String, String> cp3408Lecture;
-    private HashMap<String, String> cp3408Practical;
-    private int daysTappedIn;
-    private int daysTappedInRequired;
-    private String studyPeriodStartDateInString = "01-12-2018";
-    private String studyPeriodEndDateInString = "01-02-2019";
-    private String startDate = "01-12-2018";
-    private String endDate = "01-03-2019";
-    private String startDateInStringCP3408L = "04-12-2018";
-    private String endDateInStringCP3408L = "05-03-2019";
-    private String startDateInStringCP3408P = "05-12-2018";
-    private String endDateInStringCP3408P = "06-03-2019";
+
+    //Key is date in string, value is "True", "False" or "Null"
+    private HashMap<String, String> campusAttendance;
+
+    //Key is classID, value is HashMap with same format to campusAttendance
+    private HashMap<String, HashMap<String, String>> classAttendance;
     private LocalDate currentDate;
     private String currentDateString;
-    private String userIdForTesting = "12345678";
     private String userId;
-    private User userInfo;
     private AlarmManager alarmManager;
-
     
     ImageView settings;
     ImageView tapInTapOut;
@@ -102,34 +83,34 @@ public class MainMenuActivity extends AppCompatActivity implements
     ImageView medicalLeave;
 
     AttendanceManager attendanceManager;
-    PendingIntent pendingIntent;
-    PendingIntent pendingIntent1;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    PendingIntent notificationPendingIntent;
+    PendingIntent notificationPendingIntent1;
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        //Create required notification channel that allows the app to push out notifications
         createNotificationChannel();
         getSupportActionBar().hide();
 
-        campusAttendanceDaysCheck = new HashMap<String, String>();
-        classAttendanceDaysCheck = new HashMap<String, HashMap<String, String>>();
-        cp3408Lecture = new HashMap<String, String>();
-        cp3408Practical = new HashMap<String, String>();
-
+        campusAttendance = new HashMap<String, String>();
+        classAttendance = new HashMap<String, HashMap<String, String>>();
 
         attendanceManager = new AttendanceManager();
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        //Get User info from server.
-        requestUserInfo();
+        //Get user ID from Login Activity
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("UserID");
 
-        registerReceiver(mDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
+        registerReceiver(mDateChangeReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
         currentDate = LocalDate.now();
-        currentDateString = currentDate.format(formatter);
+        currentDateString = currentDate.format(dateFormatter);
 
         attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
             @Override
@@ -139,14 +120,15 @@ public class MainMenuActivity extends AppCompatActivity implements
 
             @Override
             public void OnSuccess(User user) {
+                //Update user attendance when it comes to the new day
                 newDayUpdateAttendance(user.getCampusAttendance());
                 for (Class userClass : user.getClasses()){
                     newDayUpdateAttendance(userClass.getAttendance());
                 }
 
-                campusAttendanceDaysCheck = user.getCampusAttendance();
+                campusAttendance = user.getCampusAttendance();
                 for (Class userClass : user.getClasses()){
-                    classAttendanceDaysCheck.put(userClass.getClassID(), userClass.getAttendance());
+                    classAttendance.put(userClass.getClassID(), userClass.getAttendance());
                 }
 
                 if(isNewDay){
@@ -175,26 +157,27 @@ public class MainMenuActivity extends AppCompatActivity implements
 
                 attendanceManager.updateUser(userId, user);
 
-                campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
+                campusAttendancePercentage = calculateAttendancePercentage(campusAttendance);
                 int totalAttendanceOfClasses = 0;
-                for (String key : classAttendanceDaysCheck.keySet()){
-                    totalAttendanceOfClasses += calculateAttendance(classAttendanceDaysCheck.get(key));
+                for (String key : classAttendance.keySet()){
+                    totalAttendanceOfClasses += calculateAttendancePercentage(classAttendance.get(key));
                 }
-                classAttendance = totalAttendanceOfClasses/classAttendanceDaysCheck.size();
+                classAttendancePercentage = totalAttendanceOfClasses/classAttendance.size();
 
-                attendanceBundle = new Bundle();
-                attendanceBundle.putString("user name", user.getName());
-                attendanceBundle.putString("user id", userId);
-                attendanceBundle.putInt("class attendance", classAttendance);
-                attendanceBundle.putInt("campus attendance", campusAttendance);
-                attendanceBundle.putSerializable("class days check", classAttendanceDaysCheck);
+                userDataBundle = new Bundle();
+                userDataBundle.putString("user name", user.getName());
+                userDataBundle.putString("user id", userId);
+                userDataBundle.putInt("class attendance", classAttendancePercentage);
+                userDataBundle.putInt("campus attendance", campusAttendancePercentage);
+                userDataBundle.putSerializable("class days check", classAttendance);
 
+                //Delay 1s to wait for FireBase finishes updating user data
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         MainScreenFragment mainScreenFragment = new MainScreenFragment();
-                        mainScreenFragment.setArguments(attendanceBundle);
+                        mainScreenFragment.setArguments(userDataBundle);
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                         fragmentTransaction.add(R.id.main_frag, mainScreenFragment, "");
@@ -207,56 +190,6 @@ public class MainMenuActivity extends AppCompatActivity implements
 
             }
         });
-
-//        campusAttendanceDaysCheck.put("01/01/2019", null);
-//        campusAttendanceDaysCheck.put("02/01/2019", null);
-//        classAttendanceDaysCheck.get("CP3408-Lecture").put("02/01/2019" , null);
-//        classAttendanceDaysCheck.get("CP3408-Practical").put("03/01/2019" , null);
-
-
-//        LocalDate startDate = LocalDate.parse(this.startDate, formatter);
-//        LocalDate endDate = LocalDate.parse(this.endDate, formatter);
-//        LocalDate currentDate = LocalDate.parse("01/01/2019", formatter);
-
-//        for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
-//            if(!date.getDayOfWeek().name().equals("SATURDAY") && !date.getDayOfWeek().name().equals("SUNDAY")) {
-//                campusAttendanceDaysCheck.put(date.format(formatter), null);
-//            }
-//            System.out.println("Hey Hey Hey");
-//        }
-//
-//        for (LocalDate date = startDate; date.isBefore(currentDate); date = date.plusDays(1))
-//        {
-//            if(!date.getDayOfWeek().name().equals("SATURDAY") && !date.getDayOfWeek().name().equals("SUNDAY")) {
-//                int randNum = new Random().nextInt(2);
-//                if (randNum == 0) {
-//                    campusAttendanceDaysCheck.put(date.format(formatter), false);
-//                } else if (randNum == 1) {
-//                    campusAttendanceDaysCheck.put(date.format(formatter), true);
-//                }
-//            }
-//        }
-
-//        saveHashMap();
-
-//        for (String name : classAttendanceDaysCheck.keySet()){
-//            System.out.println(name + ": " + classAttendanceDaysCheck.get(name));
-//        }
-//
-//        System.out.println("campusAttendanceDaysCheck >>> ");
-//        ArrayList<String> sortedKeys2 =
-//                new ArrayList<String>(campusAttendanceDaysCheck.keySet());
-//        Collections.sort(sortedKeys2, new Comparator<String>() {
-//            DateFormat f = new SimpleDateFormat("dd/MM/yyyy");
-//            @Override
-//            public int compare(String o1, String o2) {
-//                try {
-//                    return f.parse(o1).compareTo(f.parse(o2));
-//                } catch (ParseException e) {
-//                    throw new IllegalArgumentException(e);
-//                }
-//            }
-//        });
 
 
         checkMyAttendance = findViewById(R.id.check_my_attendance);
@@ -275,7 +208,7 @@ public class MainMenuActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 CheckMyAttendanceFragment checkMyAttendanceFragment = new CheckMyAttendanceFragment();
-                checkMyAttendanceFragment.setArguments(attendanceBundle);
+                checkMyAttendanceFragment.setArguments(userDataBundle);
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.popBackStack();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -301,40 +234,40 @@ public class MainMenuActivity extends AppCompatActivity implements
         });
     }
 
-    private void newDayUpdateAttendance(HashMap<String, String> attendanceDaysCheck){
-        String mostRecentDate = getMostRecentDateString(attendanceDaysCheck);
-        if (attendanceDaysCheck.containsKey(currentDateString) &&
-                attendanceDaysCheck.containsKey(mostRecentDate)){
-            for (LocalDate date = LocalDate.parse(mostRecentDate, formatter).plusDays(1);
+    private void newDayUpdateAttendance(HashMap<String, String> attendance){
+        String mostRecentDate = getMostRecentDateString(attendance);
+        if (attendance.containsKey(currentDateString) &&
+                attendance.containsKey(mostRecentDate)){
+            for (LocalDate date = LocalDate.parse(mostRecentDate, dateFormatter).plusDays(1);
                  date.isBefore(currentDate); date = date.plusDays(1)) {
-                if ( attendanceDaysCheck.containsKey(date.format(formatter))) {
-                    if (attendanceDaysCheck.get(date.format(formatter)).equals("Null")) {
-                        attendanceDaysCheck.put(date.format(formatter), "False");
+                if ( attendance.containsKey(date.format(dateFormatter))) {
+                    if (attendance.get(date.format(dateFormatter)).equals("Null")) {
+                        attendance.put(date.format(dateFormatter), "False");
                         isNewDay = true;
                     }
                 }
             }
         }
-        else if (!attendanceDaysCheck.containsKey(currentDateString) &&
-                attendanceDaysCheck.containsKey(mostRecentDate)){
-            for (LocalDate date = LocalDate.parse(mostRecentDate, formatter).plusDays(1);
+        else if (!attendance.containsKey(currentDateString) &&
+                attendance.containsKey(mostRecentDate)){
+            for (LocalDate date = LocalDate.parse(mostRecentDate, dateFormatter).plusDays(1);
                  date.isBefore(currentDate); date = date.plusDays(1)) {
-                if (attendanceDaysCheck.containsKey(date.format(formatter))) {
-                    if (attendanceDaysCheck.get(date.format(formatter)).equals("Null")) {
-                        attendanceDaysCheck.put(date.format(formatter), "False");
+                if (attendance.containsKey(date.format(dateFormatter))) {
+                    if (attendance.get(date.format(dateFormatter)).equals("Null")) {
+                        attendance.put(date.format(dateFormatter), "False");
                         isNewDay = true;
                     }
                 }
             }
         }
-        else if (attendanceDaysCheck.containsKey(currentDateString) &&
+        else if (attendance.containsKey(currentDateString) &&
                 mostRecentDate == null){
-            mostRecentDate = getFirstDateOfDaysCheck(attendanceDaysCheck);
-            for (LocalDate date = LocalDate.parse(mostRecentDate, formatter);
+            mostRecentDate = getFirstDateOfDaysCheck(attendance);
+            for (LocalDate date = LocalDate.parse(mostRecentDate, dateFormatter);
                  date.isBefore(currentDate); date = date.plusDays(1)) {
-                if ( attendanceDaysCheck.containsKey(date.format(formatter))) {
-                    if (attendanceDaysCheck.get(date.format(formatter)).equals("Null")) {
-                        attendanceDaysCheck.put(date.format(formatter), "False");
+                if ( attendance.containsKey(date.format(dateFormatter))) {
+                    if (attendance.get(date.format(dateFormatter)).equals("Null")) {
+                        attendance.put(date.format(dateFormatter), "False");
                         isNewDay = true;
                     }
                 }
@@ -382,38 +315,17 @@ public class MainMenuActivity extends AppCompatActivity implements
         return sortedKeys.get(0);
     }
 
-    private void requestUserInfo() {
-        Intent intent = getIntent();
-        userId = intent.getStringExtra("UserID");
-        attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
-            @Override
-            public void OnStart() {
 
-            }
 
-            @Override
-            public void OnSuccess(User user) {
-                userInfo = user;
-            }
-
-            @Override
-            public void OnFailure() {
-
-            }
-        });
-    }
-
+    // Create the NotificationChannel
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Test Channel";
             String description = "This is only for testing";
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel("testChannel", name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
+            // Register the channel with the system
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
@@ -430,8 +342,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mDateReceiver);
-        System.out.println("Unregister service>>>>>>>>>>>>>>>>>>>");
+        unregisterReceiver(mDateChangeReceiver);
     }
 
     @Override
@@ -439,7 +350,9 @@ public class MainMenuActivity extends AppCompatActivity implements
         upDateMainScreen();
     }
 
+    //Update the campus and class attendance circle progress bars in the main screen
     public void upDateMainScreen(){
+        //Get user data from database
         attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
             @Override
             public void OnStart() {
@@ -448,23 +361,23 @@ public class MainMenuActivity extends AppCompatActivity implements
 
             @Override
             public void OnSuccess(User user) {
-                campusAttendanceDaysCheck = user.getCampusAttendance();
+                campusAttendance = user.getCampusAttendance();
                 for (Class userClass : user.getClasses()){
-                    classAttendanceDaysCheck.put(userClass.getClassID(), userClass.getAttendance());
+                    classAttendance.put(userClass.getClassID(), userClass.getAttendance());
                 }
 
-                campusAttendance = calculateAttendance(campusAttendanceDaysCheck);
+                campusAttendancePercentage = calculateAttendancePercentage(campusAttendance);
                 int totalAttendanceOfClasses = 0;
-                for (String key : classAttendanceDaysCheck.keySet()){
-                    totalAttendanceOfClasses += calculateAttendance(classAttendanceDaysCheck.get(key));
+                for (String key : classAttendance.keySet()){
+                    totalAttendanceOfClasses += calculateAttendancePercentage(classAttendance.get(key));
                 }
-                classAttendance = totalAttendanceOfClasses/classAttendanceDaysCheck.size();
+                classAttendancePercentage = totalAttendanceOfClasses/classAttendance.size();
 
-                attendanceBundle.putInt("class attendance", classAttendance);
-                attendanceBundle.putInt("campus attendance", campusAttendance);
+                userDataBundle.putInt("class attendance", classAttendancePercentage);
+                userDataBundle.putInt("campus attendance", campusAttendancePercentage);
 
                 MainScreenFragment mainScreenFragment = new MainScreenFragment();
-                mainScreenFragment.setArguments(attendanceBundle);
+                mainScreenFragment.setArguments(userDataBundle);
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.main_frag, mainScreenFragment, "");
@@ -479,15 +392,14 @@ public class MainMenuActivity extends AppCompatActivity implements
 
     }
 
+    private int calculateAttendancePercentage(HashMap<String, String> attendance){
+        int daysTappedIn = 0;
+        int daysTappedInRequired = 0;
 
-    private int calculateAttendance(HashMap<String, String> daysCheck){
-        daysTappedIn = 0;
-        daysTappedInRequired = 0;
-
-        for (String name: daysCheck.keySet()){
-            if (!daysCheck.get(name).equals("Null")) {
+        for (String name: attendance.keySet()){
+            if (!attendance.get(name).equals("Null")) {
                 daysTappedInRequired += 1;
-                if (daysCheck.get(name).equals("True")) {
+                if (attendance.get(name).equals("True")) {
                     daysTappedIn += 1;
                 }
             }
@@ -495,19 +407,12 @@ public class MainMenuActivity extends AppCompatActivity implements
         return (int) (((float) daysTappedIn/ (float) daysTappedInRequired) * 100);
     }
 
-    private String getYesterdayDateString(){
-        final Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(cal.getTime());
-    }
-
-    private final MyDateChangeReceiver mDateReceiver = new MyDateChangeReceiver();
+    private final MyDateChangeReceiver mDateChangeReceiver = new MyDateChangeReceiver();
 
     @Override
-    public void passPendingIntents(ArrayList<PendingIntent> pendingIntents) {
-        pendingIntent = pendingIntents.get(0);
-        pendingIntent1 = pendingIntents.get(1);
+    public void passNotificationPendingIntents(ArrayList<PendingIntent> notificationPendingIntents) {
+        notificationPendingIntent = notificationPendingIntents.get(0);
+        notificationPendingIntent1 = notificationPendingIntents.get(1);
     }
 
     public class MyDateChangeReceiver extends BroadcastReceiver {
@@ -540,7 +445,7 @@ public class MainMenuActivity extends AppCompatActivity implements
                     });
 
                     currentDate = LocalDate.now();
-                    currentDateString = currentDate.format(formatter);
+                    currentDateString = currentDate.format(dateFormatter);
                     newDayUpdateAttendance(user.getCampusAttendance());
                     for (Class userClass : user.getClasses()){
                         newDayUpdateAttendance(userClass.getAttendance());
@@ -589,7 +494,6 @@ public class MainMenuActivity extends AppCompatActivity implements
         window.showAtLocation(settings, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight);
     }
 
-
     private void showContactPop() {
         PopupWindow popupWindow = new PopupWindow(this);
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -635,11 +539,11 @@ public class MainMenuActivity extends AppCompatActivity implements
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (pendingIntent!=null && pendingIntent1 != null){
-                    pendingIntent.cancel();
-                    pendingIntent1.cancel();
-                    alarmManager.cancel(pendingIntent);
-                    alarmManager.cancel(pendingIntent1);
+                if (notificationPendingIntent != null && notificationPendingIntent1 != null){
+                    notificationPendingIntent.cancel();
+                    notificationPendingIntent1.cancel();
+                    alarmManager.cancel(notificationPendingIntent);
+                    alarmManager.cancel(notificationPendingIntent1);
                 }
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);

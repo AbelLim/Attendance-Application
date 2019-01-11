@@ -1,3 +1,5 @@
+/*This class handles pushing out notification
+* Code by Tung*/
 package com.example.arx8l.attendenceapp;
 
 import android.app.NotificationManager;

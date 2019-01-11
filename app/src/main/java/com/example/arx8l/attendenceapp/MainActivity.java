@@ -19,7 +19,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        SharedPreferences.Editor editor = preferences.edit();
-//        editor.remove("current screen").commit();
     }
 }

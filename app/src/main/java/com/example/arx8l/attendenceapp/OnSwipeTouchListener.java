@@ -1,3 +1,5 @@
+/*This class handles the swipe left and right gesture
+* Code by Celine and Tung*/
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;

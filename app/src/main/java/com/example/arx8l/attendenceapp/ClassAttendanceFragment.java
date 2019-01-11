@@ -1,3 +1,5 @@
+/*This fragment is the app class attendance board
+* Code by Celine and Tung*/
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
@@ -36,7 +38,7 @@ public class ClassAttendanceFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private int classAttendance;
+    private int classAttendancePercentage;
 
     CircularProgressBar classCheckCircleBar;
     TextView classCheckPercentage;
@@ -101,30 +103,18 @@ public class ClassAttendanceFragment extends Fragment {
                 }
             });
 
-//        myFragmentView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                CampusAttendanceFragment campusAttendanceFragment = new CampusAttendanceFragment();
-//                campusAttendanceFragment.setArguments(getArguments());
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.replace(R.id.container_frag_att, campusAttendanceFragment, "campusTag");
-//                fragmentTransaction.commit();
-//            }
-//        });
-
         classCheckCircleBar = myFragmentView.findViewById(R.id.class_check_circle_bar);
         classCheckPercentage = myFragmentView.findViewById(R.id.class_check_percentage);
         classStatus = myFragmentView.findViewById(R.id.class_status);
         attentionIcon = myFragmentView.findViewById(R.id.attention_icon_class);
         attentionIcon.setVisibility(View.INVISIBLE);
 
-        classAttendance = getArguments().getInt("class attendance");
+        classAttendancePercentage = getArguments().getInt("class attendance");
 
-        classCheckCircleBar.setProgress(classAttendance);
-        classCheckPercentage.setText(classAttendance + "%");
+        classCheckCircleBar.setProgress(classAttendancePercentage);
+        classCheckPercentage.setText(classAttendancePercentage + "%");
 
-        if (classAttendance >= 90){
+        if (classAttendancePercentage >= 90){
             classStatus.setText("Your attendance meets the ICA Requirements");
         }
         else {

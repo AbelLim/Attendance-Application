@@ -1,3 +1,5 @@
+/*This fragment is the app campus attendance board
+* Code by Celine and Tung*/
 package com.example.arx8l.attendenceapp;
 
 import android.content.Context;
@@ -36,7 +38,7 @@ public class CampusAttendanceFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private int campusAttendance;
+    private int campusAttendancePercentage;
 
     CircularProgressBar campusCheckCircleBar;
     TextView campusCheckPercentage;
@@ -80,30 +82,18 @@ public class CampusAttendanceFragment extends Fragment {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_campus_attendance, container, false);
 
-//        myFragmentView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ClassAttendanceFragment classAttendanceFragment = new ClassAttendanceFragment();
-//                classAttendanceFragment.setArguments(getArguments());
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.replace(R.id.container_frag_att, classAttendanceFragment, "classTag");
-//                fragmentTransaction.commit();
-//            }
-//        });
-
         campusCheckCircleBar = myFragmentView.findViewById(R.id.campus_check_circle_bar);
         campusCheckPercentage = myFragmentView.findViewById(R.id.campus_check_percentage);
         campusStatus = myFragmentView.findViewById(R.id.campus_status);
         attentionIcon = myFragmentView.findViewById(R.id.attention_icon_campus);
         attentionIcon.setVisibility(View.INVISIBLE);
 
-        campusAttendance = getArguments().getInt("campus attendance");
+        campusAttendancePercentage = getArguments().getInt("campus attendance");
 
-        campusCheckCircleBar.setProgress(campusAttendance);
-        campusCheckPercentage.setText(campusAttendance + "%");
+        campusCheckCircleBar.setProgress(campusAttendancePercentage);
+        campusCheckPercentage.setText(campusAttendancePercentage + "%");
 
-        if (campusAttendance >= 90){
+        if (campusAttendancePercentage >= 90){
             campusStatus.setText("Your attendance meets the ICA Requirements");
         }
         else {

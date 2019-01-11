@@ -1,3 +1,5 @@
+/*This class defines the camera view with QR Code scanner frame and scanner bar
+* Code by Tung*/
 package com.example.arx8l.attendenceapp;
 
 import android.animation.ObjectAnimator;
@@ -20,9 +22,6 @@ import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.zxing.Result;
 
-/**
- * Created by User on 14/12/2018.
- */
 
 public class QRCodeScanner extends AppCompatActivity {
     private CodeScanner mCodeScanner;
@@ -59,23 +58,18 @@ public class QRCodeScanner extends AppCompatActivity {
         mParams.bottomMargin = Math.round(mParams.width/2);
         scannerBar.setLayoutParams(mParams);
 
-
         mCodeScanner = new CodeScanner(this, scannerView);
         mCodeScanner.setDecodeCallback(new DecodeCallback() {
             @Override
             public void onDecoded(@NonNull final Result result) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(getBaseContext(), result.getText(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
                 Intent data = new Intent();
-                data.putExtra("cc", result.getText());
+                data.putExtra("scan result", result.getText());
                 QRCodeScanner.this.setResult(0, data);
                 QRCodeScanner.this.finish();
             }
         });
+
+        //Open camera view
         scannerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,11 +77,11 @@ public class QRCodeScanner extends AppCompatActivity {
             }
         });
 
+        //Add animation for the scanner bar
         ViewTreeObserver vto = scannerView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-
                 scannerView.getViewTreeObserver().removeOnGlobalLayoutListener (this);
 
                 float destination = (float)(Math.round(width * frameSize));
@@ -107,13 +101,6 @@ public class QRCodeScanner extends AppCompatActivity {
     }
 
     public void hideNavigationBar(){
-//        this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN |
-//                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-//                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-//                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-//                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-
         this.getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
                         View.SYSTEM_UI_FLAG_IMMERSIVE|

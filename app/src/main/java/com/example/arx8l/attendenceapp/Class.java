@@ -1,10 +1,9 @@
+/*This class defines the Class database object. It is used to contain class specific information.
+* Code by Tung*/
+
 package com.example.arx8l.attendenceapp;
 
 import java.util.HashMap;
-
-/**
- * Created by User on 31/12/2018.
- */
 
 public class Class {
     private String classID;
