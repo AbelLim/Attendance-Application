@@ -15,6 +15,7 @@
         android:layout_marginTop="40dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="26dp"
+        app:shadowColor="#d2d2d2"
         app:cornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,55 +67,74 @@
 
                 </LinearLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <FrameLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/statistic_panel_1">
 
                     <RelativeLayout
                         android:id="@+id/progressbar_class_name_1"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="30dp"
+                        android:layout_marginStart="30dp"
+                        android:layout_gravity="center">
 
-                        <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
-                            android:id="@+id/progress_1"
-                            android:layout_width="280dp"
-                            android:layout_height="50dp"
-                            app:rcBackgroundColor="#02d609"
-                            app:rcProgress="30"
-                            app:rcRadius="10dp"
-                            android:paddingStart="29dp"
-                            app:rcProgressColor="#02d609" />
-
-                        <TextView
-                            android:id="@+id/class_name_1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="CP 3405"
-                            android:textColor="@android:color/white"
-                            android:textSize="22dp"
-                            android:textStyle="bold"/>
-
-                        <RelativeLayout
+                        <com.loopeer.shadow.ShadowView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toEndOf="@id/progress_1"
-                            android:layout_centerInParent="true">
-                            <ImageView
-                                android:id="@+id/warning_1"
-                                android:layout_centerHorizontal="true"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/atentie" />
-                        </RelativeLayout>
+                            app:shadowColor="@android:color/darker_gray"
+                            app:shadowMarginBottom="8dp"
+                            app:cornerRadiusBL="14dp"
+                            app:cornerRadiusBR="14dp"
+                            app:shadowRadius="8dp">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                                    android:id="@+id/progress_1"
+                                    android:layout_width="300dp"
+                                    android:layout_height="50dp"
+                                    app:rcBackgroundColor="#02d609"
+                                    app:rcRadius="10dp"
+                                    app:rcProgress="30"
+                                    app:rcProgressColor="#02d609" />
+
+                                <TextView
+                                    android:id="@+id/class_name_1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:text="CP 3405"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="22dp"
+                                    android:textStyle="bold"/>
+                            </RelativeLayout>
+
+
+
+                        </com.loopeer.shadow.ShadowView>
+
+
 
                     </RelativeLayout>
 
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="3dp"
+                        android:layout_gravity="end|center">
+                        <ImageView
+                            android:id="@+id/warning_1"
+                            android:layout_centerHorizontal="true"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/atentie" />
+                    </RelativeLayout>
 
 
-
-                </RelativeLayout>
+                </FrameLayout>
 
 
 
@@ -125,11 +145,11 @@
             <!--// start for part 2 //-->
 
             <RelativeLayout
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="10dp"
                 android:id="@+id/progress_bar_panel_2"
-                android:layout_below="@id/progress_bar_panel_1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/progress_bar_panel_1">
 
                 <LinearLayout
                     android:id="@+id/statistic_panel_2"
@@ -160,71 +180,89 @@
 
                 </LinearLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <FrameLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/statistic_panel_2">
 
                     <RelativeLayout
                         android:id="@+id/progressbar_class_name_2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="30dp"
+                        android:layout_marginStart="30dp"
+                        android:layout_gravity="center">
 
-                        <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
-                            android:id="@+id/progress_2"
-                            android:layout_width="280dp"
-                            android:layout_height="50dp"
-                            app:rcBackgroundColor="#02d609"
-                            app:rcProgress="30"
-                            app:rcRadius="10dp"
-                            android:paddingStart="29dp"
-                            app:rcProgressColor="#ffcc00" />
-
-                        <TextView
-                            android:id="@+id/class_name_2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="CP 3405"
-                            android:textColor="@android:color/white"
-                            android:textSize="22dp"
-                            android:textStyle="bold"/>
-
-                        <RelativeLayout
+                        <com.loopeer.shadow.ShadowView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toEndOf="@id/progress_2"
-                            android:layout_centerInParent="true">
-                            <ImageView
-                                android:id="@+id/warning_2"
-                                android:layout_centerHorizontal="true"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/atentie" />
-                        </RelativeLayout>
+                            app:shadowColor="@android:color/darker_gray"
+                            app:shadowMarginBottom="8dp"
+                            app:cornerRadiusBL="14dp"
+                            app:cornerRadiusBR="14dp"
+                            app:shadowRadius="8dp">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                                    android:id="@+id/progress_2"
+                                    android:layout_width="300dp"
+                                    android:layout_height="50dp"
+                                    app:rcBackgroundColor="#02d609"
+                                    app:rcRadius="10dp"
+                                    app:rcProgress="30"
+                                    app:rcProgressColor="#02d609" />
+
+                                <TextView
+                                    android:id="@+id/class_name_2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:text="CP 3405"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="22dp"
+                                    android:textStyle="bold"/>
+                            </RelativeLayout>
+
+
+
+                        </com.loopeer.shadow.ShadowView>
+
+
 
                     </RelativeLayout>
 
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="3dp"
+                        android:layout_gravity="end|center">
+                        <ImageView
+                            android:id="@+id/warning_2"
+                            android:layout_centerHorizontal="true"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/atentie" />
+                    </RelativeLayout>
 
 
-
-                </RelativeLayout>
+                </FrameLayout>
 
 
 
             </RelativeLayout>
-
             <!--// end for part 2 //-->
 
 
             <!--// start for part 3 //-->
 
             <RelativeLayout
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="10dp"
                 android:id="@+id/progress_bar_panel_3"
-                android:layout_below="@id/progress_bar_panel_2"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/progress_bar_panel_2">
 
                 <LinearLayout
                     android:id="@+id/statistic_panel_3"
@@ -255,71 +293,89 @@
 
                 </LinearLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <FrameLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/statistic_panel_3">
 
                     <RelativeLayout
                         android:id="@+id/progressbar_class_name_3"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="30dp"
+                        android:layout_marginStart="30dp"
+                        android:layout_gravity="center">
 
-                        <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
-                            android:id="@+id/progress_3"
-                            android:layout_width="280dp"
-                            android:layout_height="50dp"
-                            app:rcBackgroundColor="#02d609"
-                            app:rcProgress="30"
-                            app:rcRadius="10dp"
-                            android:paddingStart="29dp"
-                            app:rcProgressColor="#ffcc00" />
-
-                        <TextView
-                            android:id="@+id/class_name_3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="CP 3405"
-                            android:textColor="@android:color/white"
-                            android:textSize="22dp"
-                            android:textStyle="bold"/>
-
-                        <RelativeLayout
+                        <com.loopeer.shadow.ShadowView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toEndOf="@id/progress_3"
-                            android:layout_centerInParent="true">
-                            <ImageView
-                                android:id="@+id/warning_3"
-                                android:layout_centerHorizontal="true"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/atentie" />
-                        </RelativeLayout>
+                            app:shadowColor="@android:color/darker_gray"
+                            app:shadowMarginBottom="8dp"
+                            app:cornerRadiusBL="14dp"
+                            app:cornerRadiusBR="14dp"
+                            app:shadowRadius="8dp">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                                    android:id="@+id/progress_3"
+                                    android:layout_width="300dp"
+                                    android:layout_height="50dp"
+                                    app:rcBackgroundColor="#02d609"
+                                    app:rcRadius="10dp"
+                                    app:rcProgress="30"
+                                    app:rcProgressColor="#02d609" />
+
+                                <TextView
+                                    android:id="@+id/class_name_3"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:text="CP 3405"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="22dp"
+                                    android:textStyle="bold"/>
+                            </RelativeLayout>
+
+
+
+                        </com.loopeer.shadow.ShadowView>
+
+
 
                     </RelativeLayout>
 
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="3dp"
+                        android:layout_gravity="end|center">
+                        <ImageView
+                            android:id="@+id/warning_3"
+                            android:layout_centerHorizontal="true"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/atentie" />
+                    </RelativeLayout>
 
 
-
-                </RelativeLayout>
+                </FrameLayout>
 
 
 
             </RelativeLayout>
-
             <!--// end part 3 //-->
 
 
             <!--// start part 4 //-->
 
             <RelativeLayout
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="10dp"
                 android:id="@+id/progress_bar_panel_4"
-                android:layout_below="@id/progress_bar_panel_3"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/progress_bar_panel_3">
 
                 <LinearLayout
                     android:id="@+id/statistic_panel_4"
@@ -350,55 +406,74 @@
 
                 </LinearLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <FrameLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/statistic_panel_4">
 
                     <RelativeLayout
                         android:id="@+id/progressbar_class_name_4"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="30dp"
+                        android:layout_marginStart="30dp"
+                        android:layout_gravity="center">
 
-                        <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
-                            android:id="@+id/progress_4"
-                            android:layout_width="280dp"
-                            android:layout_height="50dp"
-                            app:rcBackgroundColor="#02d609"
-                            app:rcProgress="30"
-                            app:rcRadius="10dp"
-                            android:paddingStart="29dp"
-                            app:rcProgressColor="#ffcc00" />
-
-                        <TextView
-                            android:id="@+id/class_name_4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="CP 3405"
-                            android:textColor="@android:color/white"
-                            android:textSize="22dp"
-                            android:textStyle="bold"/>
-
-                        <RelativeLayout
+                        <com.loopeer.shadow.ShadowView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toEndOf="@id/progress_4"
-                            android:layout_centerInParent="true">
-                            <ImageView
-                                android:id="@+id/warning_4"
-                                android:layout_centerHorizontal="true"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/atentie" />
-                        </RelativeLayout>
+                            app:shadowColor="@android:color/darker_gray"
+                            app:shadowMarginBottom="8dp"
+                            app:cornerRadiusBL="14dp"
+                            app:cornerRadiusBR="14dp"
+                            app:shadowRadius="8dp">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+                                    android:id="@+id/progress_4"
+                                    android:layout_width="300dp"
+                                    android:layout_height="50dp"
+                                    app:rcBackgroundColor="#02d609"
+                                    app:rcRadius="10dp"
+                                    app:rcProgress="30"
+                                    app:rcProgressColor="#02d609" />
+
+                                <TextView
+                                    android:id="@+id/class_name_4"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:text="CP 3405"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="22dp"
+                                    android:textStyle="bold"/>
+                            </RelativeLayout>
+
+
+
+                        </com.loopeer.shadow.ShadowView>
+
+
 
                     </RelativeLayout>
 
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="3dp"
+                        android:layout_gravity="end|center">
+                        <ImageView
+                            android:id="@+id/warning_4"
+                            android:layout_centerHorizontal="true"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/atentie" />
+                    </RelativeLayout>
 
 
-
-                </RelativeLayout>
+                </FrameLayout>
 
 
 

@@ -4,6 +4,7 @@
 package com.example.arx8l.attendenceapp;
 
 import android.*;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,6 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -32,6 +34,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -40,10 +43,18 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.common.internal.Constants;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,21 +62,28 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class MainMenuActivity extends AppCompatActivity implements
         MainScreenFragment.OnFragmentInteractionListener,
         CheckMyAttendanceFragment.OnFragmentInteractionListener,
         ClassAttendanceFragment.OnFragmentInteractionListener,
         CampusAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnAttendanceChangeListener ,
-        DetailClassAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnRegisterNotificationListener{
+        DetailClassAttendanceFragment.OnFragmentInteractionListener, MainScreenFragment.OnRegisterNotificationListener, Serializable{
 
     //Contain user data to pass around different fragments
     private Bundle userDataBundle;
     private int classAttendancePercentage;
     private int campusAttendancePercentage;
     private boolean isNewDay = false;
+    private boolean popupIsShowing = false;
+    private boolean popupIsCloseByClickOutSide = false;
+    private boolean popupIsCloseByClickSetting = false;
+    private boolean onDismissIsCalled = false;
 
     //Key is date in string, value is "True", "False" or "Null"
     private HashMap<String, String> campusAttendance;
@@ -73,9 +91,13 @@ public class MainMenuActivity extends AppCompatActivity implements
     //Key is classID, value is HashMap with same format to campusAttendance
     private HashMap<String, HashMap<String, String>> classAttendance;
     private LocalDate currentDate;
+    private LocalTime currentTime;
     private String currentDateString;
-    private String userId;
+    private String currentTimeString;
+    private String userId = "11111111";
     private AlarmManager alarmManager;
+    private ArrayList<Class> currentDateClasses;
+    private HashMap<String,PendingIntent> notificationIntents;
     
     ImageView settings;
     ImageView tapInTapOut;
@@ -83,9 +105,13 @@ public class MainMenuActivity extends AppCompatActivity implements
     ImageView medicalLeave;
 
     AttendanceManager attendanceManager;
-    PendingIntent notificationPendingIntent;
-    PendingIntent notificationPendingIntent1;
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    SharedPreferences preferences;
+    SharedPreferences loginPref;
+    SharedPreferences.Editor editor;
+    SharedPreferences.Editor loginEdi;
+    PopupWindow popupWindow;
 
 
     @Override
@@ -97,20 +123,40 @@ public class MainMenuActivity extends AppCompatActivity implements
         createNotificationChannel();
         getSupportActionBar().hide();
 
-        campusAttendance = new HashMap<String, String>();
-        classAttendance = new HashMap<String, HashMap<String, String>>();
-
-        attendanceManager = new AttendanceManager();
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
         //Get user ID from Login Activity
         Intent intent = getIntent();
         userId = intent.getStringExtra("UserID");
 
+        Intent locationServiceIntent = new Intent(this, LocationService.class);
+        stopService(locationServiceIntent);
+
+        Intent appKilledServiceIntent = new Intent(this, DetectAppIsKilledService.class);
+        appKilledServiceIntent.putExtra("receiver", new Gson().toJson(mDateChangeReceiver));
+
+        startService(appKilledServiceIntent);
+
+        campusAttendance = new HashMap<String, String>();
+        classAttendance = new HashMap<String, HashMap<String, String>>();
+        currentDateClasses = new ArrayList<>();
+        notificationIntents = new HashMap<>();
+
+        popupWindow = new PopupWindow(this);
+
+        preferences = getSharedPreferences("notification", MODE_PRIVATE);
+        editor  = getSharedPreferences("notification", MODE_PRIVATE).edit();
+
+        loginPref = getSharedPreferences("login", MODE_PRIVATE);
+        loginEdi  = getSharedPreferences("login", MODE_PRIVATE).edit();
+
+        attendanceManager = new AttendanceManager();
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
         registerReceiver(mDateChangeReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
         currentDate = LocalDate.now();
+        currentTime = LocalTime.now();
         currentDateString = currentDate.format(dateFormatter);
+        currentTimeString = currentTime.format(timeFormatter);
 
         attendanceManager.getUser(userId, new AttendanceManager.onGetUserListener() {
             @Override
@@ -126,36 +172,69 @@ public class MainMenuActivity extends AppCompatActivity implements
                     newDayUpdateAttendance(userClass.getAttendance());
                 }
 
-                campusAttendance = user.getCampusAttendance();
-                for (Class userClass : user.getClasses()){
-                    classAttendance.put(userClass.getClassID(), userClass.getAttendance());
-                }
-
                 if(isNewDay){
-                    attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
-                        @Override
-                        public void OnStart() {
+                    user.setTappedIn(false);
 
-                        }
-
-                        @Override
-                        public void OnSuccess() {
-
-                        }
-
-                        @Override
-                        public void OnFailure() {
-
-                        }
-                    });
+                    editor.clear().commit();
 
                     for (Class userClass : user.getClasses()){
                         userClass.setUserTappedIn(false);
                     }
+                    currentDateClasses.clear();
                     isNewDay = false;
                 }
+//                editor.clear().commit();
+//                user.setTappedIn(false);
+                //inside:  1.316145, 103.875995
+                //outside: 1.316799, 103.876596
+
+                user.getCampusAttendance().put("29-01-2019", "Null");
+//                user.getCampusAttendance().put("30-01-2019", "Null");
+//
+                user.getClasses().get(1).getAttendance().put("29-01-2019", "Null");
+//                user.getClasses().get(4).getAttendance().put("30-01-2019", "Null");
+                user.getClasses().get(6).getAttendance().put("29-01-2019", "Null");
+//                user.getClasses().get(7).getAttendance().put("30-01-2019", "Null");
 
                 attendanceManager.updateUser(userId, user);
+
+                campusAttendance = user.getCampusAttendance();
+                for (Class userClass : user.getClasses()){
+                    classAttendance.put(userClass.getClassID(), userClass.getAttendance());
+                    if (userClass.getAttendance().containsKey(currentDateString)
+                            && userClass.getAttendance().get(currentDateString).equals("Null")){
+                        currentDateClasses.add(userClass);
+                    }
+                }
+
+
+                for (int i = 0; i < currentDateClasses.size(); i++) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    int curHr = calendar.get(Calendar.HOUR_OF_DAY);
+                    int curMin = calendar.get(Calendar.MINUTE);
+                    int classStartTimeHour = Integer.parseInt(currentDateClasses.get(i).getStartTime().substring(0, 2));
+                    int classStartTimeMinute = Integer.parseInt(currentDateClasses.get(i).getStartTime().substring(3));
+
+                    if (currentTime.isBefore(LocalTime.parse(getClassStartTimeNotification(currentDateClasses.get(i).getStartTime())))
+                            && !currentDateClasses.get(i).getUserTappedIn()) {
+
+                        PendingIntent tapInNotification;
+                        calendar.set(Calendar.HOUR_OF_DAY, classStartTimeHour);
+                        calendar.set(Calendar.MINUTE, classStartTimeMinute + 10);
+                        calendar.set(Calendar.SECOND, 00);
+                        Intent notifyIntent = new Intent(MainMenuActivity.this, NotificationReceiver.class);
+                        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        notifyIntent.putExtra("notification type", "class tap in");
+                        notifyIntent.putExtra("class id", currentDateClasses.get(i).getClassID());
+                        tapInNotification = PendingIntent.getBroadcast
+                                (getApplicationContext(), 3 + i, notifyIntent, 0);
+                        notificationIntents.put(currentDateClasses.get(i).getClassID() + " tap in",tapInNotification);
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                                calendar.getTimeInMillis(),
+                                tapInNotification);
+                    }
+                }
 
                 campusAttendancePercentage = calculateAttendancePercentage(campusAttendance);
                 int totalAttendanceOfClasses = 0;
@@ -170,6 +249,7 @@ public class MainMenuActivity extends AppCompatActivity implements
                 userDataBundle.putInt("class attendance", classAttendancePercentage);
                 userDataBundle.putInt("campus attendance", campusAttendancePercentage);
                 userDataBundle.putSerializable("class days check", classAttendance);
+                userDataBundle.putSerializable("notification intents", notificationIntents);
 
                 //Delay 1s to wait for FireBase finishes updating user data
                 Handler handler = new Handler();
@@ -200,7 +280,30 @@ public class MainMenuActivity extends AppCompatActivity implements
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showSettingPop();
+//                if (!popupIsShowing && !popupIsCloseByClickOutSide) {
+//                    showSettingPop();
+//                    popupIsShowing = true;
+//                }
+//                else if (!popupIsShowing && popupIsCloseByClickSetting){
+//                    showSettingPop();
+//                    popupIsShowing = true;
+//                }
+//                else if (!popupIsShowing && popupIsCloseByClickOutSide){
+//                    popupWindow.dismiss();
+//                    popupIsShowing = false;
+//                    popupIsCloseByClickSetting = true;
+//                    popupIsCloseByClickOutSide = false;
+//                }
+//                else if (popupIsShowing && !popupIsCloseByClickSetting){
+//                    popupWindow.dismiss();
+//                    popupIsShowing = false;
+//                    popupIsCloseByClickSetting = true;
+//                    popupIsCloseByClickOutSide = false;
+//                }
+//                if (!popupIsShowing){
+                    showSettingPop();
+//                    popupIsShowing = true;
+//                }
             }
         });
 
@@ -337,7 +440,11 @@ public class MainMenuActivity extends AppCompatActivity implements
 
     }
 
-
+    public String getClassStartTimeNotification(String classStartTime){
+        LocalTime lcStartTime = LocalTime.parse(classStartTime);
+        lcStartTime = lcStartTime.plusMinutes(10);
+        return lcStartTime.format(timeFormatter);
+    }
 
     @Override
     protected void onDestroy() {
@@ -389,8 +496,8 @@ public class MainMenuActivity extends AppCompatActivity implements
 
             }
         });
-
     }
+    
 
     private int calculateAttendancePercentage(HashMap<String, String> attendance){
         int daysTappedIn = 0;
@@ -410,9 +517,8 @@ public class MainMenuActivity extends AppCompatActivity implements
     private final MyDateChangeReceiver mDateChangeReceiver = new MyDateChangeReceiver();
 
     @Override
-    public void passNotificationPendingIntents(ArrayList<PendingIntent> notificationPendingIntents) {
-        notificationPendingIntent = notificationPendingIntents.get(0);
-        notificationPendingIntent1 = notificationPendingIntents.get(1);
+    public void passNotificationPendingIntents(HashMap<String, PendingIntent> notificationPendingIntents) {
+        notificationIntents = notificationPendingIntents;
     }
 
     public class MyDateChangeReceiver extends BroadcastReceiver {
@@ -427,25 +533,11 @@ public class MainMenuActivity extends AppCompatActivity implements
 
                 @Override
                 public void OnSuccess(User user) {
-                    attendanceManager.tapOut(userId, new AttendanceManager.OnTapOutListener() {
-                        @Override
-                        public void OnStart() {
-
-                        }
-
-                        @Override
-                        public void OnSuccess() {
-
-                        }
-
-                        @Override
-                        public void OnFailure() {
-
-                        }
-                    });
+                    user.setTappedIn(false);
 
                     currentDate = LocalDate.now();
                     currentDateString = currentDate.format(dateFormatter);
+
                     newDayUpdateAttendance(user.getCampusAttendance());
                     for (Class userClass : user.getClasses()){
                         newDayUpdateAttendance(userClass.getAttendance());
@@ -454,6 +546,44 @@ public class MainMenuActivity extends AppCompatActivity implements
                     attendanceManager.updateUser(userId, user);
 
                     isNewDay = false;
+                    notificationIntents.clear();
+                    currentDateClasses.clear();
+                    editor.clear().commit();
+
+                    for (Class userClass : user.getClasses()){
+                        if (userClass.getAttendance().containsKey(currentDateString)
+                                && userClass.getAttendance().get(currentDateString).equals("Null")){
+                            currentDateClasses.add(userClass);
+                        }
+                    }
+
+                    for (int i = 0; i < currentDateClasses.size(); i++) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(System.currentTimeMillis());
+                        int curHr = calendar.get(Calendar.HOUR_OF_DAY);
+                        int curMin = calendar.get(Calendar.MINUTE);
+                        int classStartTimeHour = Integer.parseInt(currentDateClasses.get(i).getStartTime().substring(0,2));
+                        int classStartTimeMinute = Integer.parseInt(currentDateClasses.get(i).getStartTime().substring(3));
+
+                        if (currentTime.isBefore(LocalTime.parse(getClassStartTimeNotification(currentDateClasses.get(i).getStartTime())))) {
+                            PendingIntent tapInNotification;
+                            calendar.set(Calendar.HOUR_OF_DAY, classStartTimeHour);
+                            calendar.set(Calendar.MINUTE, classStartTimeMinute + 10);
+                            calendar.set(Calendar.SECOND, 00);
+                            Intent notifyIntent = new Intent(MainMenuActivity.this, NotificationReceiver.class);
+                            notifyIntent.putExtra("notification type", "class tap in");
+                            notifyIntent.putExtra("class id", currentDateClasses.get(i).getClassID());
+                            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            tapInNotification = PendingIntent.getBroadcast
+                                    (getApplicationContext(), 3 + i, notifyIntent,0 );
+                            notificationIntents.put(currentDateClasses.get(i).getClassID() + " tap in", tapInNotification);
+                            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                                    calendar.getTimeInMillis(),
+                                    tapInNotification);
+
+                        }
+
+                    }
 
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -491,11 +621,11 @@ public class MainMenuActivity extends AppCompatActivity implements
         int measuredHeight = v.getMeasuredHeight();
         int[] location = new int[2];
         settings.getLocationOnScreen(location);
-        window.showAtLocation(settings, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight);
+        window.showAtLocation(settings, Gravity.NO_GRAVITY, 0, location[1] - measuredHeight + 8);
     }
 
     private void showContactPop() {
-        PopupWindow popupWindow = new PopupWindow(this);
+
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -522,15 +652,19 @@ public class MainMenuActivity extends AppCompatActivity implements
         popupWindow.setContentView(view);
         popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
         popupWindow.setOutsideTouchable(true);
+
+
         showUp(view, popupWindow);
         popupWindow.update();
+
     }
 
 
     public void showSettingPop() {
-        PopupWindow popupWindow = new PopupWindow(this);
+//        PopupWindow popupWindow = new PopupWindow(this);
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
 
         View view = LayoutInflater.from(this).inflate(R.layout.pop_setting, null);
         RelativeLayout contacts = view.findViewById(R.id.layout_contacts);
@@ -539,14 +673,16 @@ public class MainMenuActivity extends AppCompatActivity implements
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (notificationPendingIntent != null && notificationPendingIntent1 != null){
-                    notificationPendingIntent.cancel();
-                    notificationPendingIntent1.cancel();
-                    alarmManager.cancel(notificationPendingIntent);
-                    alarmManager.cancel(notificationPendingIntent1);
+                for (String key: notificationIntents.keySet()){
+                    notificationIntents.get(key).cancel();
+                    alarmManager.cancel(notificationIntents.get(key));
                 }
+                editor.clear().commit();
+                loginEdi.clear().commit();
+
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
+                popupWindow.dismiss();
                 finish();
             }
         });
@@ -562,6 +698,7 @@ public class MainMenuActivity extends AppCompatActivity implements
         popupWindow.setContentView(view);
         popupWindow.setBackgroundDrawable(new ColorDrawable(66000000));
         popupWindow.setOutsideTouchable(true);
+        popupWindow.setFocusable(true);
         showUp(view, popupWindow);
         popupWindow.update();
     }

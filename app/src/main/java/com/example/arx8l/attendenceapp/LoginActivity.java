@@ -1,6 +1,7 @@
 package com.example.arx8l.attendenceapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,12 +20,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText etPwd;
     private Button btLogin;
     private LoginManager mLogin = new LoginManager();
+    private AttendanceManager attendanceManager = new AttendanceManager();
+
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
+
+        preferences = getSharedPreferences("login", MODE_PRIVATE);
+        editor  = getSharedPreferences("login", MODE_PRIVATE).edit();
+
         initView();
     }
 
@@ -60,6 +69,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Log.e("TAG", "-------OnSuccess");
                 Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
                 intent.putExtra("UserID", user.getUserID());
+                editor.putString("userID", user.getUserID());
+                editor.apply();
                 startActivity(intent);
                 finish();
             }

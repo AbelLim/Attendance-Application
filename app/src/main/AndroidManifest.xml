@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".EasyAtt"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="EasyAtt"
@@ -37,6 +38,17 @@
         </activity>
         <activity android:name=".SuccessPage" />
 
-    </application>
+        <service
+            android:name=".LocationService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
 
+        <service android:name=".DetectAppIsKilledService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false">
+
+        </service>
+    </application>
 </manifest>
