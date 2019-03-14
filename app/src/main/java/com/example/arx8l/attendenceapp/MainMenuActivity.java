@@ -499,6 +499,7 @@ public class MainMenuActivity extends AppCompatActivity implements
     }
     
 
+
     private int calculateAttendancePercentage(HashMap<String, String> attendance){
         int daysTappedIn = 0;
         int daysTappedInRequired = 0;
